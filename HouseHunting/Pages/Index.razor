@@ -1,0 +1,177 @@
+﻿@page "/"
+
+@using  Microsoft.Extensions.Configuration
+@using DataAccess
+
+@using Syncfusion.Blazor.Cards
+@using Syncfusion.Blazor.Buttons
+@inject INewHouseDAO _idao
+@inject IConfiguration _iconfig
+
+@if (houseObjectList == null) //THIS IS NOT WORKING???
+{
+    <p><em>Loading Houses...</em></p>
+}
+else
+{
+    <div class="control-section card-control-section tile_layout">
+        <div class="row e-card-layout" style="text-align:center;">
+            <div class="row error" style="display:none;min-height:150px">
+                <div class="e-error-content" style="margin:auto;height:inherit;font-size:18px;font-weight:500;color:inherit">No results found. Please try a different search.</div>
+            </div>
+            @foreach (DataAccess.HouseObject house in houseObjectList)
+            {
+                <div class="col-lg-3 col-md-3 col-sm-6">
+                    <div id="card_sample_11" class="card_sample">
+                        <SfCard ID="@house.ID.ToString()">
+                            <CardImage Image="@house.ImageUrl" />
+                            <CardHeader Title="@house.Price.ToString()" SubTitle="Score here" />
+                            <CardContent Content="Features" />
+                            <CardFooter>
+                                <CardFooterContent>
+                                    <SfButton CssClass="e-btn e-outline e-primary" @onclick="@(e =>NavigateToUrlAsync(house.ZillowUrl))">Zillow</SfButton>
+                                </CardFooterContent>
+                            </CardFooter>
+                        </SfCard>
+                    </div>
+                </div>
+            }
+
+
+        </div>
+    </div>
+    <div id="source_link">
+        Source:
+        <a href="https://www.syncfusion.com/ebooks/" target="_blank">https://www.syncfusion.com/ebooks</a>
+    </div>
+}
+
+
+<style>
+    /* Tile view card customization */
+    .tile_layout.card-control-section .row.filter .tile_search {
+        justify-content: flex-end;
+    }
+
+    .tile_layout.card-control-section .row .e-card {
+        text-align: left;
+        margin: 10px;
+    }
+
+    .tile_layout.card-control-section .control-wrapper {
+        padding: 0 20px;
+    }
+
+    .tile_layout.card-control-section .row.filter {
+        margin: 0;
+    }
+
+    .tile_layout.card-control-section .e-card .e-card-actions a {
+        border: 1px solid;
+        display: block;
+        margin: auto;
+        width: 100px;
+        border-radius: inherit;
+    }
+
+    .tile_layout.card-control-section .e-card .e-card-image {
+        height: 180px;
+        width: inherit;
+    }
+
+    .tile_layout.card-control-section .row.filter .col-xs-3.col-sm-3.col-lg-3.col-md-3 col-sm-6 {
+        display: inline-flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .tile_layout.card-control-section .col-xs-3.col-sm-3.col-lg-3.col-md-3 col-sm-6 {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .card-control-section.tile_layout .e-card-layout {
+        margin: auto;
+        max-width: 190px;
+    }
+
+    #source_link {
+        float: right;
+        margin-right: 10px;
+    }
+
+    .tile_layout.card-control-section .col-xs-6.col-sm-6.col-lg-6.col-md-6 {
+        width: 25%;
+    }
+
+    .card-control-section.tile_layout .e-card-layout {
+        max-width: 890px;
+    }
+
+    .e-card .e-card-header .e-card-header-caption .e-card-header-title {
+        font-size: 20px;
+        font-family: Helvetica, 'Segoe UI';
+        font-weight: bold;
+    }
+
+    .e-card .e-card-header .e-card-header-caption .e-card-sub-title {
+        padding-top: 5px;
+    }
+
+    .e-card .e-card-content {
+        padding-top: 0px;
+        height: 110px;
+    }
+
+    .col-lg-3 .col-md-3 .col-sm-6 {
+        padding-right: 5px !important;
+        padding-left: 5px !important;
+    }
+</style>
+@code {
+
+    //[Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public IJSRuntime JsRuntime { get; set; }
+
+    //List<House> houseList;
+    List<HouseObject> houseObjectList;
+    HouseObject house1;
+    HouseObject house2;
+    HouseObject house3;
+
+    string schema;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string sql = "select * from HouseDetails";
+        //List<string> strings = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
+        //List<HouseObject> houses = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
+        houseObjectList = await _idao.LoadData<HouseObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultHome"));
+        //houseList = await _idao.LoadData<House, dynamic>(sql, new { }, _iconfig.GetConnectionString("default"));
+    }
+    //protected override async Task OnInitializedAsync()
+    //{
+
+
+    //    house1.ID = 1;
+    //    house1.Address = "OK";
+    //    house1.Price = 88000;
+    //    house1.ImageUrl = "images/house1.png";
+    //    house1.ZillowUrl = "https://www.zillow.com/homes/209-Gutter-Rd,-Harriet,-AR-72639_rb/193984030_zpid/";
+
+    //    house2.ID = 2;
+    //    house2.Address = "AR";
+    //    house2.Price = 89900;
+    //    house2.ImageUrl = "images/house1.png";
+    //    house2.ZillowUrl = "https://www.zillow.com/myzillow/favorites?mmlb=g,0";
+
+    //    houseList.Add(house1);
+    //    houseList.Add(house2);
+    //    //schema = System.IO.File.ReadAllText("HouseCardsSchema.json");
+    //}
+
+    public async Task NavigateToUrlAsync(string url)
+    {
+        await JsRuntime.InvokeAsync<object>("open", url, "_blank");
+    }
+}

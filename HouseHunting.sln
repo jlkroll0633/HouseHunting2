@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29926.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HouseHunting", "HouseHunting\HouseHunting.csproj", "{352DCE14-A352-48AE-AA96-9CD3A3E0A65F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E0FD5E24-922C-411A-990F-D602ED95AF9B} = {E0FD5E24-922C-411A-990F-D602ED95AF9B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{E0FD5E24-922C-411A-990F-D602ED95AF9B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{352DCE14-A352-48AE-AA96-9CD3A3E0A65F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{352DCE14-A352-48AE-AA96-9CD3A3E0A65F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{352DCE14-A352-48AE-AA96-9CD3A3E0A65F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{352DCE14-A352-48AE-AA96-9CD3A3E0A65F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0FD5E24-922C-411A-990F-D602ED95AF9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0FD5E24-922C-411A-990F-D602ED95AF9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0FD5E24-922C-411A-990F-D602ED95AF9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0FD5E24-922C-411A-990F-D602ED95AF9B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0E82C7E6-3497-4DF9-98F5-415563F3E986}
+	EndGlobalSection
+EndGlobal
