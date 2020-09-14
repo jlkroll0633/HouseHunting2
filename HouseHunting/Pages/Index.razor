@@ -146,8 +146,15 @@ else
         string sql = "select * from HouseDetails";
         //List<string> strings = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
         //List<HouseObject> houses = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
-        houseObjectList = await _idao.LoadData<HouseObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultHome"));
-        //houseList = await _idao.LoadData<House, dynamic>(sql, new { }, _iconfig.GetConnectionString("default"));
+        houseObjectList = await _idao.GetHouseData<HouseObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
+        sql = "select HouseID, FeatureID, Name, Description from HouseFeatures Left Join Features On HouseFeatures.FeatureID = Features.ID where HouseID = @HouseID";
+        foreach (HouseObject house in houseObjectList)
+        {
+            List<FeatureObject> features = new List<FeatureObject>();
+            features = await _idao.GetHouseFeatures<FeatureObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
+        }
+
+
     }
     //protected override async Task OnInitializedAsync()
     //{

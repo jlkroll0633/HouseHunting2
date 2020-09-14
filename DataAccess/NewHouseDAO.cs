@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace DataAccess
 
             }
         }
-        public List<HouseObject> GetData(string sql, string con)
+        public List<HouseObject> GetHouseData(string sql, string con)
         {
             List<HouseObject> data = new List<HouseObject>();
             HouseObject house;
@@ -56,8 +57,38 @@ namespace DataAccess
             }
             return data;
         }
+        public List<FeatureObject> GetHouseFeatures(string sql, string con)
+        {
+            List<FeatureObject> features = new List<FeatureObject>();
+            FeatureObject feature = new FeatureObject();
 
+            using (var connection = new SqlConnection(con))
+            {
+                connection.Open();
+                using (SqlCommand cmd = new SqlCommand(sql, connection))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
 
+                            while (dr.Read())
+                            {
+                                if(!DBNull.Value.Equals(dr["HasYearRoundSpring"]))
+                                {
+                                    feature.Name = "YearRoundSpring";
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            }
+            return features;
+        }
+
+        
     }
 
 }
