@@ -15,7 +15,8 @@ namespace DataAccess
         [Required]
         public decimal Price { get; set; }
         public List<FeatureObject> Features { get; set; } = new List<FeatureObject>();
-      
+        public double Score { get; set; }
+
         public string ZillowUrl { get; set; }
         public string ImageUrl { get; set; }
 

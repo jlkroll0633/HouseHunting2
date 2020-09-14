@@ -146,13 +146,17 @@ else
         string sql = "select * from HouseDetails";
         //List<string> strings = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
         //List<HouseObject> houses = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
-        houseObjectList = await _idao.GetHouseData<HouseObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
-        sql = "select HouseID, FeatureID, Name, Description from HouseFeatures Left Join Features On HouseFeatures.FeatureID = Features.ID where HouseID = @HouseID";
+        houseObjectList = await _idao.LoadData<HouseObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
+
         foreach (HouseObject house in houseObjectList)
         {
+            sql = $"select HouseID, FeatureID AS ID, Name, Description, Weight from HouseFeatures Left Join Features On HouseFeatures.FeatureID = Features.ID where HouseID =  {house.ID}";
             List<FeatureObject> features = new List<FeatureObject>();
-            features = await _idao.GetHouseFeatures<FeatureObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
+            features = await _idao.LoadData<FeatureObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
+            house.Features.AddRange(features);
+            house.Score = house.GetScore();
         }
+
 
 
     }
