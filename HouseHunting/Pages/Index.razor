@@ -3,8 +3,10 @@
 @using  Microsoft.Extensions.Configuration
 @using DataAccess
 
-@using Syncfusion.Blazor.Cards
-@using Syncfusion.Blazor.Buttons
+
+
+@*@using Syncfusion.Blazor.Cards
+@using Syncfusion.Blazor.Buttons*@
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 
@@ -25,7 +27,7 @@ else
                     <div id="card_sample_11" class="card_sample">
                         <SfCard ID="@house.ID.ToString()">
                             <CardImage Image="@house.ImageUrl" />
-                            <CardHeader Title="@house.Price.ToString()" SubTitle="Score here" />
+                            <CardHeader Title="@house.Price.ToString()" SubTitle="@house.Score.ToString()" />
                             <CardContent Content="Features" />
                             <CardFooter>
                                 <CardFooterContent>
@@ -133,53 +135,24 @@ else
     //[Inject] public NavigationManager NavigationManager { get; set; }
     [Inject] public IJSRuntime JsRuntime { get; set; }
 
-    //List<House> houseList;
     List<HouseObject> houseObjectList;
-    HouseObject house1;
-    HouseObject house2;
-    HouseObject house3;
-
-    string schema;
+    List<FeatureObject> features;
 
     protected override async Task OnInitializedAsync()
     {
-        string sql = "select * from HouseDetails";
-        //List<string> strings = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
-        //List<HouseObject> houses = _idao.GetData(sql, _iconfig.GetConnectionString("default"));
-        houseObjectList = await _idao.LoadData<HouseObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
+
+        houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, _iconfig.GetConnectionString("defaultWork"));
 
         foreach (HouseObject house in houseObjectList)
         {
-            sql = $"select HouseID, FeatureID AS ID, Name, Description, Weight from HouseFeatures Left Join Features On HouseFeatures.FeatureID = Features.ID where HouseID =  {house.ID}";
-            List<FeatureObject> features = new List<FeatureObject>();
-            features = await _idao.LoadData<FeatureObject, dynamic>(sql, new { }, _iconfig.GetConnectionString("defaultWork"));
+
+            features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { ID = house.ID }, _iconfig.GetConnectionString("defaultWork"));
             house.Features.AddRange(features);
             house.Score = house.GetScore();
         }
 
-
-
     }
-    //protected override async Task OnInitializedAsync()
-    //{
 
-
-    //    house1.ID = 1;
-    //    house1.Address = "OK";
-    //    house1.Price = 88000;
-    //    house1.ImageUrl = "images/house1.png";
-    //    house1.ZillowUrl = "https://www.zillow.com/homes/209-Gutter-Rd,-Harriet,-AR-72639_rb/193984030_zpid/";
-
-    //    house2.ID = 2;
-    //    house2.Address = "AR";
-    //    house2.Price = 89900;
-    //    house2.ImageUrl = "images/house1.png";
-    //    house2.ZillowUrl = "https://www.zillow.com/myzillow/favorites?mmlb=g,0";
-
-    //    houseList.Add(house1);
-    //    houseList.Add(house2);
-    //    //schema = System.IO.File.ReadAllText("HouseCardsSchema.json");
-    //}
 
     public async Task NavigateToUrlAsync(string url)
     {

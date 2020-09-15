@@ -1,0 +1,163 @@
+﻿@page "/houselist"
+@using  Microsoft.Extensions.Configuration
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Data
+
+@inject INewHouseDAO _idao
+@inject IConfiguration _iconfig
+
+<h3>House List</h3>
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@houseObjectList"
+                    Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+                    AllowPaging="true"
+                    AllowSorting="true">
+                <GridPageSettings PageSize="7"></GridPageSettings>
+                <GridEvents OnActionBegin="ActionBegin" TValue="HouseObject">   </GridEvents>
+                <GridEditSettings AllowAdding="true"
+                                  AllowDeleting="true"
+                                  AllowEditing="true"
+                                  Mode="EditMode.Normal">
+                </GridEditSettings>
+
+                <GridTemplates>
+                    <DetailTemplate>
+
+                        @{
+                            var house = (context as HouseObject);
+                            var features = house.Features;
+
+                                                <SfGrid DataSource="@features"
+                                                        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+                                                        AllowPaging="true">
+                                                    <GridEditSettings AllowAdding="true"
+                                                                      AllowDeleting="true"
+                                                                      AllowEditing="true"
+                                                                      Mode="EditMode.Normal">
+                                                    </GridEditSettings>
+                                                    <GridPageSettings PageSize="8"></GridPageSettings>
+
+                                                    <GridColumns>
+                                                        <GridColumn Field=@nameof(FeatureObject.ID)
+                                                                    HeaderText="Feature ID"
+                                                                    IsPrimaryKey="true"
+                                                                    IsIdentity="true"
+                                                                    TextAlign="TextAlign.Right"
+                                                                    Width="140">
+
+                                                        </GridColumn>
+                                                        <GridColumn Field=@nameof(FeatureObject.Name)
+                                                                    HeaderText="Name"
+                                                                    Width="110">
+
+                                                        </GridColumn>
+
+                                                    </GridColumns>
+                                                </SfGrid>
+                        }
+                    </DetailTemplate>
+                </GridTemplates>
+
+                <GridColumns>
+                    <GridColumn Field=@nameof(HouseObject.ID)
+                                HeaderText="House ID"
+                                IsPrimaryKey="true"
+                                IsIdentity="true"
+                                ValidationRules="@(new ValidationRules { Required = true, Number = true })"
+                                TextAlign="TextAlign.Right"
+                                Width="140">
+
+                    </GridColumn>
+                    <GridColumn Field=@nameof(HouseObject.Address)
+                                HeaderText="Address"
+                                ValidationRules="@(new ValidationRules { Required = true })"
+                                Width="150">
+                        @*<EditTemplate>
+                                <SfAutoComplete TItem="OrdersDetails" TValue="string" ID="CustomerID" @bind-Value="@((context as OrdersDetails).CustomerID)" DataSource="@GridData">
+                                    <AutoCompleteFieldSettings Value="CustomerID"></AutoCompleteFieldSettings>
+                                </SfAutoComplete>
+                            </EditTemplate>*@
+                    </GridColumn>
+                    <GridColumn Field=@nameof(HouseObject.Price)
+                                HeaderText="Price"
+                                ValidationRules="@(new ValidationRules { Required = true })"
+                                EditType="EditType.NumericEdit"
+                                Format="C2"
+                                TextAlign="TextAlign.Right"
+                                Width="140">
+
+                    </GridColumn>
+                    <GridColumn Field=@nameof(HouseObject.Features)
+                                HeaderText="Zillow"
+                                Width="160">
+
+                    </GridColumn>
+                    <GridColumn Field=@nameof(HouseObject.ZillowUrl)
+                                HeaderText="Zillow"
+                                Width="160">
+
+                    </GridColumn>
+                    <GridColumn Field=@nameof(HouseObject.ImageUrl)
+                                HeaderText="Image Url"
+                                Width="150">
+
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+
+@code {
+    List<HouseObject> houseObjectList;
+    List<FeatureObject> features;
+    string connString;
+
+    //public Query GetFeatures(HouseObject value)
+    //{
+    //    // return new Query().Where("HouseID", "equal", value.ID)
+    //    //return new Query().Where("HouseID", "equal", value.ID);
+    //    //return new Query().Select();
+
+    //}
+
+    protected override async Task OnInitializedAsync()
+    {
+        connString = _iconfig.GetConnectionString("defaultWork");
+
+        houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
+        foreach (HouseObject house in houseObjectList)
+        {
+
+            features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { ID = house.ID }, connString);
+            house.Features.AddRange(features);
+            house.Score = house.GetScore();
+        }
+
+    }
+    public async Task ActionBegin(ActionEventArgs<HouseObject> args)
+    {
+        HouseObject house = args.Data;
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+        {
+            if(args.Action == "Edit")
+            {
+
+            }
+            else if (args.Action == "Add")
+            {
+                int id = await _idao.AddHouse<HouseObject>(house.Address, house.Price, house.ZillowUrl,  house.ImageUrl , connString);
+            }
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
+        {
+            int rows = await _idao.DeleteHouse<dynamic>(new { HouseID = house.ID }, connString);
+        }
+
+
+    }
+}

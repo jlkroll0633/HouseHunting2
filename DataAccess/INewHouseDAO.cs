@@ -5,9 +5,14 @@ namespace DataAccess
 {
     public interface INewHouseDAO
     {
-        List<HouseObject> GetHouseData(string sql, string con);
-        List<FeatureObject> GetHouseFeatures(string sql, string con);
-        Task<List<T>> LoadData<T, U>(string sql, U parameters, string connString);
-        Task SaveData<T>(string sql, T parameters, string connString);
+        Task<int> AddHouse<T>(T parameters, string connString);
+        Task<int> AddHouse<T>(string address, decimal price, string zillow, string image, string connString);
+
+        Task<int> DeleteHouse<T>(T parameters, string connString);
+       
+        Task<List<T>> LoadFeatureData<T, U>(U parameters, string connString);
+        Task<List<T>> LoadHouseData<T, U>(U parameters, string connString);
+       
+        Task UpdateHouse<T>(T parameters, string connString);
     }
 }
