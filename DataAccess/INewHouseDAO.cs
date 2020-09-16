@@ -10,6 +10,7 @@ namespace DataAccess
         Task<int> AddHouse<T>(string address, decimal price, string zillow, string image, string connString);
 
         Task<bool> DeleteHouse<T>(T parameters, string connString);
+        Task<bool> EditHouse<T>(T parameters, string connString);
         Task<List<T>> LoadFeatures<T, U>(U parameters, string connString);
         Task<List<T>> LoadFeaturesByHouse<T, U>(U parameters, string connString);
         Task<List<T>> LoadHouseData<T, U>(U parameters, string connString);

@@ -159,7 +159,7 @@
             {
                 if (args.Action == "Edit")
                 {
-
+                    bool isEdit = await _idao.EditHouse<dynamic>(new {Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString);
                 }
                 else if (args.Action == "Add")
                 {

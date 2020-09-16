@@ -116,6 +116,28 @@ namespace DataAccess
 
             }
         }
+        public async Task<bool> EditHouse<T>(T parameters, string connString)
+        {
+            string sql = $@"update HouseDetails set (Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl) where HouseID = @HouseID";
+
+
+
+            using (IDbConnection connection = new SqlConnection(connString))
+            {
+                try
+                {
+                    connection.Open();
+                    await connection.ExecuteAsync(sql, parameters);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+
+            }
+        }
 
 
         //public int DeleteHouse<T>(T parameters, string connString)
