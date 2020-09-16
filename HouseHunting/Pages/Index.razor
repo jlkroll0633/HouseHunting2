@@ -3,14 +3,10 @@
 @using  Microsoft.Extensions.Configuration
 @using DataAccess
 
-
-
-@*@using Syncfusion.Blazor.Cards
-@using Syncfusion.Blazor.Buttons*@
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 
-@if (houseObjectList == null) //THIS IS NOT WORKING???
+@if (houseObjectList == null)
 {
     <p><em>Loading Houses...</em></p>
 }
@@ -25,7 +21,7 @@ else
             {
                 <div class="col-lg-3 col-md-3 col-sm-6">
                     <div id="card_sample_11" class="card_sample">
-                        <SfCard ID="@house.ID.ToString()">
+                        <SfCard ID="@house.HouseID.ToString()">
                             <CardImage Image="@house.ImageUrl" />
                             <CardHeader Title="@house.Price.ToString()" SubTitle="@house.Score.ToString()" />
                             <CardContent Content="Features" />
@@ -137,25 +133,43 @@ else
 
     List<HouseObject> houseObjectList;
     List<FeatureObject> features;
+    string connString;
 
     protected override async Task OnInitializedAsync()
     {
+        connString = _iconfig.GetConnectionString("defaultWork");
+        try
+        {
+            //houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, _iconfig.GetConnectionString("defaultWork"));
+            houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
 
-        houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, _iconfig.GetConnectionString("defaultWork"));
+            foreach (HouseObject house in houseObjectList)
+            {
 
-        foreach (HouseObject house in houseObjectList)
+                features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
+                house.Features.AddRange(features);
+                house.Score = house.GetScore();
+            }
+        }
+        catch (Exception e)
         {
 
-            features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { ID = house.ID }, _iconfig.GetConnectionString("defaultWork"));
-            house.Features.AddRange(features);
-            house.Score = house.GetScore();
         }
+
 
     }
 
 
     public async Task NavigateToUrlAsync(string url)
     {
-        await JsRuntime.InvokeAsync<object>("open", url, "_blank");
+        try
+        {
+            await JsRuntime.InvokeAsync<object>("open", url, "_blank");
+        }
+        catch
+        {
+
+        }
+
     }
 }

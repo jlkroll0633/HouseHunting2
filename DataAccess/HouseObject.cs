@@ -9,7 +9,7 @@ namespace DataAccess
 {
     public class HouseObject
     {
-        public int ID { get; set; }
+        public int HouseID { get; set; }
         [Required]
         public string Address { get; set; }
         [Required]

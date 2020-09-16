@@ -42,7 +42,7 @@
                                                     <GridPageSettings PageSize="8"></GridPageSettings>
 
                                                     <GridColumns>
-                                                        <GridColumn Field=@nameof(FeatureObject.ID)
+                                                        <GridColumn Field=@nameof(FeatureObject.FeatureID)
                                                                     HeaderText="Feature ID"
                                                                     IsPrimaryKey="true"
                                                                     IsIdentity="true"
@@ -63,7 +63,7 @@
                 </GridTemplates>
 
                 <GridColumns>
-                    <GridColumn Field=@nameof(HouseObject.ID)
+                    <GridColumn Field=@nameof(HouseObject.HouseID)
                                 HeaderText="House ID"
                                 IsPrimaryKey="true"
                                 IsIdentity="true"
@@ -91,11 +91,11 @@
                                 Width="140">
 
                     </GridColumn>
-                    <GridColumn Field=@nameof(HouseObject.Features)
+                    @*<GridColumn Field=@nameof(HouseObject.Features)
                                 HeaderText="Zillow"
                                 Width="160">
 
-                    </GridColumn>
+                    </GridColumn>*@
                     <GridColumn Field=@nameof(HouseObject.ZillowUrl)
                                 HeaderText="Zillow"
                                 Width="160">
@@ -128,35 +128,52 @@
     protected override async Task OnInitializedAsync()
     {
         connString = _iconfig.GetConnectionString("defaultWork");
+        //connString = Tools.GetConnectionString("defaultWork");
+        try
+        {
+            houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
+            foreach (HouseObject house in houseObjectList)
+            {
 
-        houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
-        foreach (HouseObject house in houseObjectList)
+                features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
+                house.Features.AddRange(features);
+                house.Score = house.GetScore();
+            }
+        }
+        catch (Exception ex)
         {
 
-            features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { ID = house.ID }, connString);
-            house.Features.AddRange(features);
-            house.Score = house.GetScore();
         }
+
+
 
     }
     public async Task ActionBegin(ActionEventArgs<HouseObject> args)
     {
         HouseObject house = args.Data;
-        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+        try
         {
-            if(args.Action == "Edit")
+            if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
+                if (args.Action == "Edit")
+                {
 
+                }
+                else if (args.Action == "Add")
+                {
+                    int newId = await _idao.AddHouse<HouseObject>(house.Address, house.Price, house.ZillowUrl, house.ImageUrl, connString);
+                }
             }
-            else if (args.Action == "Add")
+            else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
-                int id = await _idao.AddHouse<HouseObject>(house.Address, house.Price, house.ZillowUrl,  house.ImageUrl , connString);
+                bool isDeleted = await _idao.DeleteHouse<dynamic>(new { HouseID = house.HouseID }, connString);
             }
         }
-        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
+        catch (Exception ex)
         {
-            int rows = await _idao.DeleteHouse<dynamic>(new { HouseID = house.ID }, connString);
+
         }
+
 
 
     }

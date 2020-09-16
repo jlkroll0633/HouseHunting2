@@ -24,7 +24,9 @@ namespace DataAccess
         }
         public async Task<List<T>> LoadFeatureData<T, U>(U parameters, string connString)
         {
-            string sql = "select HouseID, FeatureID AS ID, Name, Description, Weight from HouseFeatures Left Join Features On HouseFeatures.FeatureID = Features.ID where HouseID = @ID";
+            string sql = @"select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight from HouseFeatures 
+                        Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
+                        where HouseID = @HouseID";
             using (IDbConnection connection = new SqlConnection(connString))
             {
                 connection.Open();
@@ -47,9 +49,9 @@ namespace DataAccess
         {
             string sql = $@"Insert into HouseDetails (Address, Price, ZillowUrl, ImageUrl) 
                         values (@Address, @Price, @ZillowUrl, @ImageUrl)
-                        select @ID @@IDENTITY";
+                        select @HouseID = @@IDENTITY";
             var p = new DynamicParameters();
-            p.Add("@ID", 0, DbType.Int32, ParameterDirection.Output);
+            p.Add("@HouseID", 0, DbType.Int32, ParameterDirection.Output);
             p.Add("@Address", address);
             p.Add("@Price", price);
             p.Add("@ZillowUrl", zillow);
@@ -57,10 +59,18 @@ namespace DataAccess
 
             using (IDbConnection connection = new SqlConnection(connString))
             {
-                connection.Open();
-                connection.Execute(sql, p);
-                int newID = p.Get<int>("@ID");
-                return newID;
+                try
+                {
+                    connection.Open();
+                    await connection.ExecuteAsync(sql, p);
+                    int newID = p.Get<int>("@HouseID");
+                    return newID;
+                }
+                catch (Exception ex)
+                {
+                    return -1;
+                }
+               
 
             }
         }
@@ -76,18 +86,76 @@ namespace DataAccess
         //    }
         //}
 
-        public async Task<int> DeleteHouse<T>(T parameters, string connString)
+        public async Task<bool> DeleteHouse<T>(T parameters, string connString)
         {
-            string sql = "Delete From HouseDetails where ID = @HouseID";
-
-            using (IDbConnection connection = new SqlConnection(connString))
+          
+            string sql = "Delete From HouseDetails where HouseID = @HouseID";
+            string sql2 = "Delete From HouseFeatures where HouseID = @HouseID";
+            int rows;
+            try
             {
-                int rows = await connection.ExecuteAsync(sql, parameters);
-                return rows;
+                using (IDbConnection connection = new SqlConnection(connString))
+                {
+                    connection.Open();
+                    if (HasFeatures(parameters, connection))
+                    {
+                        //Begin transaction
+                        if(connection.State != ConnectionState.Open)
+                        {
+                            connection.Open();
+                        }
+                        using (IDbTransaction transaction = connection.BeginTransaction())
+                        {
+                            try
+                            {
+                                rows = await connection.ExecuteAsync(sql, parameters, transaction);
+                                rows = await connection.ExecuteAsync(sql2, parameters, transaction);
+                                transaction.Commit();
+                            }
+                            catch (Exception ex)
+                            {
+                                transaction.Rollback();
+                                Console.WriteLine($" Delete transaction cancelled. {ex.Message}");
+                                throw new Exception(ex.Message, ex.InnerException);
+                            }
 
+                        }
 
+                        return true;
+                    }
+                    else
+                    {
+                        //just delete house only
+                        rows = await connection.ExecuteAsync(sql, parameters);
+                        return true;
+                    }
 
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Something went wrong deleting. {ex.Message}");
+                return false;
+            }
+       
+        }
+
+        private bool HasFeatures<T>(T parameters, IDbConnection connection)
+        {
+            string sql = "Select Count (HouseID) From HouseFeatures where HouseID = @HouseID";
+           
+                object obj = connection.ExecuteScalar(sql, parameters);
+                if (obj != null)
+                {
+                    int count = Convert.ToInt32(obj);
+                    if (count > 1)
+                    {
+                        return true;
+                    }
+                }
+
+
+            return false;
         }
 
         public Task<int> AddHouse<T>(T parameters, string connString)
