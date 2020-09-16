@@ -29,31 +29,36 @@
 
                         @{
                             var house = (context as HouseObject);
+                                               
+                            currentHouse = house;
                             var features = house.Features;
 
+
                                                 <SfGrid DataSource="@features"
-                                                        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+                                                       
                                                         AllowPaging="true">
-                                                    <GridEditSettings AllowAdding="true"
+                                                    @*<GridEditSettings AllowAdding="true"
                                                                       AllowDeleting="true"
                                                                       AllowEditing="true"
                                                                       Mode="EditMode.Normal">
-                                                    </GridEditSettings>
+                                                    </GridEditSettings>*@
+                                                    <GridEvents OnActionBegin="ActionDetailBegin" 
+                                                               OnCellSave="CellSave" 
+                                                               TValue="FeatureObject">   </GridEvents>
                                                     <GridPageSettings PageSize="8"></GridPageSettings>
 
                                                     <GridColumns>
-                                                        <GridColumn Field=@nameof(FeatureObject.FeatureID)
-                                                                    HeaderText="Feature ID"
-                                                                    IsPrimaryKey="true"
-                                                                    IsIdentity="true"
-                                                                    TextAlign="TextAlign.Right"
-                                                                    Width="140">
 
-                                                        </GridColumn>
+                                                        
                                                         <GridColumn Field=@nameof(FeatureObject.Name)
                                                                     HeaderText="Name"
                                                                     Width="110">
-
+                                                            @*<Template Context="featureContext">
+                                                                <SfDropDownList TValue="string" DataSource="FeaturesAll" TItem="FeatureObject">
+                                                                    <DropDownListFieldSettings Text="Name" Value="FeatueID"></DropDownListFieldSettings>
+                                                                </SfDropDownList>
+                                                            </Template>*@
+                                                                 
                                                         </GridColumn>
 
                                                     </GridColumns>
@@ -114,29 +119,26 @@
 
 @code {
     List<HouseObject> houseObjectList;
-    List<FeatureObject> features;
+    List<FeatureObject> Features;
+    List<FeatureObject> FeaturesAll;
+    string selectedFeature;
+    HouseObject currentHouse;
+    FeatureObject currentFeature;
     string connString;
 
-    //public Query GetFeatures(HouseObject value)
-    //{
-    //    // return new Query().Where("HouseID", "equal", value.ID)
-    //    //return new Query().Where("HouseID", "equal", value.ID);
-    //    //return new Query().Select();
-
-    //}
 
     protected override async Task OnInitializedAsync()
     {
         connString = _iconfig.GetConnectionString("defaultWork");
-        //connString = Tools.GetConnectionString("defaultWork");
         try
         {
+            FeaturesAll = await _idao.LoadFeatures<FeatureObject, dynamic>(new { }, connString);
             houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
             foreach (HouseObject house in houseObjectList)
             {
 
-                features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
-                house.Features.AddRange(features);
+                Features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
+                house.Features.AddRange(Features);
                 house.Score = house.GetScore();
             }
         }
@@ -175,6 +177,40 @@
         }
 
 
+
+    }
+    public async Task ActionDetailBegin(ActionEventArgs<FeatureObject> args)
+    {
+        FeatureObject features = args.Data;
+        string sf = selectedFeature;
+        try
+        {
+            if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+            {
+                if (args.Action == "Edit")
+                {
+
+                }
+                else if (args.Action == "Add")
+                {
+
+                    var result = await _idao.AddFeature<dynamic>(new {HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString);
+                }
+            }
+            else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
+            {
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
+
+    }
+    public async Task CellSave(CellSaveArgs<FeatureObject> Args)
+    {
 
     }
 }

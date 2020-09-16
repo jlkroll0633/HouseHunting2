@@ -146,7 +146,7 @@ else
             foreach (HouseObject house in houseObjectList)
             {
 
-                features = await _idao.LoadFeatureData<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
+                features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
                 house.Features.AddRange(features);
                 house.Score = house.GetScore();
             }

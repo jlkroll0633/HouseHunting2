@@ -22,7 +22,7 @@ namespace DataAccess
                 return rows.ToList();
             }
         }
-        public async Task<List<T>> LoadFeatureData<T, U>(U parameters, string connString)
+        public async Task<List<T>> LoadFeaturesByHouse<T, U>(U parameters, string connString)
         {
             string sql = @"select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight from HouseFeatures 
                         Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
@@ -34,6 +34,25 @@ namespace DataAccess
 
                 return rows.ToList();
             }
+        }
+        public async Task<List<T>> LoadFeatures<T, U>(U parameters, string connString)
+        {
+            string sql = @"select FeatureID, [Name], [Description] from Features";
+            try
+            {
+                using (IDbConnection connection = new SqlConnection(connString))
+                {
+                    connection.Open();
+                    var rows = await connection.QueryAsync<T>(sql, parameters);
+
+                    return rows.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+           
         }
         public Task UpdateHouse<T>(T parameters, string connString)
         {
@@ -74,6 +93,31 @@ namespace DataAccess
 
             }
         }
+        public async Task<bool> AddFeature<T>(T parameters, string connString)
+        {
+            string sql = $@"Insert into HouseFeatures (HouseID, FeatureID) 
+                        values (@HouseID, @FeatureID)";
+                        
+            
+
+            using (IDbConnection connection = new SqlConnection(connString))
+            {
+                try
+                {
+                    connection.Open();
+                    await connection.ExecuteAsync(sql, parameters);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+
+            }
+        }
+
+
         //public int DeleteHouse<T>(T parameters, string connString)
         //{
         //    string sql = "Delete From HouseDetails where ID = @HouseID";
