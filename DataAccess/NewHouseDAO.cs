@@ -118,7 +118,7 @@ namespace DataAccess
         }
         public async Task<bool> EditHouse<T>(T parameters, string connString)
         {
-            string sql = $@"update HouseDetails set (Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl) where HouseID = @HouseID";
+            string sql = $@"update HouseDetails set Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl where HouseID = @HouseID";
 
 
 
