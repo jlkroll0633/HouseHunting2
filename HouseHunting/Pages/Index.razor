@@ -23,8 +23,29 @@ else
                     <div id="card_sample_11" class="card_sample">
                         <SfCard ID="@house.HouseID.ToString()">
                             <CardImage Image="@house.ImageUrl" />
-                            <CardHeader Title="@house.Price.ToString()" SubTitle="@house.Score.ToString()" />
-                            <CardContent Content="Features" />
+                             @{ 
+                                 string title = $"Score: {house.Score.ToString()}";
+                                 string price = $"${house.Price.ToString()}";
+                             }
+                            <CardHeader Title="@title" SubTitle="@price" />
+                            <CardContent>
+                                <table style="width: 100%">
+                                    @foreach (FeatureObject feature in house.Features)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="card-text-value">
+                                                    <b>@feature.Description</b>
+                                                </div>
+                                            </td>
+                                            @*<td>
+                                                <div class="card-text-value">@feature.Description</div>
+                                            </td>*@
+                                        </tr>
+                                    }
+
+                                </table>
+</CardContent>
                             <CardFooter>
                                 <CardFooterContent>
                                     <SfButton CssClass="e-btn e-outline e-primary" @onclick="@(e =>NavigateToUrlAsync(house.ZillowUrl))">Zillow</SfButton>
