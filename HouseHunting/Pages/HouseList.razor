@@ -210,7 +210,6 @@
             {
                 if (args.Action == "Edit")
                 {
-                    //Do a stored procedure,I'm not actually editing a feature but replacing it so we need a delete and insert
                     sql = "update HouseFeatures set FeatureID = @FeatureID where HouseID=@HouseID and FeatureID = @PreviousFeatureID";
                     result = await _idao.Edit<dynamic>(new {FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID, PreviousFeatureID = args.PreviousData.FeatureID }, connString, sql);
                 }
