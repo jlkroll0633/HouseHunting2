@@ -14,6 +14,7 @@
         <div class="row">
             <SfGrid DataSource="@houseObjectList"
                     Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+                    @ref="Grid"
                     AllowPaging="true"
                     AllowSorting="true">
                 <GridPageSettings PageSize="7"></GridPageSettings>
@@ -28,41 +29,14 @@
                     <DetailTemplate>
 
                         @{
-                            var house = (context as HouseObject);
-                                               
-                            currentHouse = house;
-                            var features = house.Features;
+                            HouseObject house = (context as HouseObject);
+                            Features = house.Features;
+                          <SfGrid DataSource="Features">
+                              <GridColumn Field="@nameof(FeatureObject.Description)">
 
-
-                                                <SfGrid DataSource="@features"
-                                                       
-                                                        AllowPaging="true">
-                                                    @*<GridEditSettings AllowAdding="true"
-                                                                      AllowDeleting="true"
-                                                                      AllowEditing="true"
-                                                                      Mode="EditMode.Normal">
-                                                    </GridEditSettings>*@
-                                                    <GridEvents OnActionBegin="ActionDetailBegin" 
-                                                               OnCellSave="CellSave" 
-                                                               TValue="FeatureObject">   </GridEvents>
-                                                    <GridPageSettings PageSize="8"></GridPageSettings>
-
-                                                    <GridColumns>
-
-                                                        
-                                                        <GridColumn Field=@nameof(FeatureObject.Name)
-                                                                    HeaderText="Name"
-                                                                    Width="110">
-                                                            @*<Template Context="featureContext">
-                                                                <SfDropDownList TValue="string" DataSource="FeaturesAll" TItem="FeatureObject">
-                                                                    <DropDownListFieldSettings Text="Name" Value="FeatueID"></DropDownListFieldSettings>
-                                                                </SfDropDownList>
-                                                            </Template>*@
-                                                                 
-                                                        </GridColumn>
-
-                                                    </GridColumns>
-                                                </SfGrid>
+                              </GridColumn>
+                          </SfGrid>
+                                              
                         }
                     </DetailTemplate>
                 </GridTemplates>
@@ -98,9 +72,11 @@
                     </GridColumn>
                     @*<GridColumn Field=@nameof(HouseObject.Features)
                                 HeaderText="Zillow"
-                                Width="160">
+                                Width="160"
+                                Visible="false"
+                                EditType="EditType.DropDownEdit">*@
 
-                    </GridColumn>*@
+                    @*</GridColumn>*@
                     <GridColumn Field=@nameof(HouseObject.ZillowUrl)
                                 HeaderText="Zillow"
                                 Width="160">
@@ -124,6 +100,8 @@
     string selectedFeature;
     HouseObject currentHouse;
     FeatureObject currentFeature;
+    SfGrid<HouseObject> Grid;
+    
     string connString;
 
 
@@ -169,6 +147,10 @@
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
                 bool isDeleted = await _idao.DeleteHouse<dynamic>(new { HouseID = house.HouseID }, connString);
+            }
+            else if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
+            {
+                
             }
         }
         catch (Exception ex)
