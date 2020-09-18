@@ -13,6 +13,7 @@
     <div class="content-wrapper">
         <div class="row">
             <SfGrid DataSource="@houseObjectList"
+                    TValue="HouseObject"
                     Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
                     @ref="Grid"
                     AllowPaging="true"
@@ -30,12 +31,36 @@
 
                         @{
                             HouseObject house = (context as HouseObject);
-                            Features = house.Features;
-                          <SfGrid DataSource="Features">
-                              <GridColumn Field="@nameof(FeatureObject.Description)">
+                            var features = house.Features;
+                            currentHouse = house;
+                                                <SfGrid DataSource="@features"
+                                                        TValue="FeatureObject"
+                                                        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
+                                                    <GridEvents OnActionBegin="ActionDetailBegin" TValue="FeatureObject">   </GridEvents>
+                                                    <GridEditSettings AllowAdding="true"
+                                                                      AllowDeleting="true"
+                                                                      AllowEditing="true"
+                                                                      Mode="EditMode.Normal">
 
-                              </GridColumn>
-                          </SfGrid>
+                                                    </GridEditSettings>
+                                                    <GridColumns>
+
+
+                                                        <GridColumn Field=@nameof(FeatureObject.Description)
+                                                                    HeaderText="Feature"
+                                                                    Width="110"
+                                                                    EditType="EditType.DropDownEdit">
+                                                            <EditTemplate Context="editContext">
+                                                                <SfDropDownList ID="Description" TValue="Int32" DataSource="FeaturesAll" TItem="FeatureObject"
+                                                                                @bind-Value="((editContext as FeatureObject).FeatureID)">
+                                                                    <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
+                                                                </SfDropDownList>
+                                                            </EditTemplate>
+                                                           
+                                                        </GridColumn>
+
+                                                    </GridColumns>
+                                                </SfGrid>
                                               
                         }
                     </DetailTemplate>
@@ -101,7 +126,7 @@
     HouseObject currentHouse;
     FeatureObject currentFeature;
     SfGrid<HouseObject> Grid;
-    
+
     string connString;
 
 
@@ -110,12 +135,20 @@
         connString = _iconfig.GetConnectionString("defaultWork");
         try
         {
-            FeaturesAll = await _idao.LoadFeatures<FeatureObject, dynamic>(new { }, connString);
-            houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
+            string sql = @"select FeatureID, [Name], [Description] from Features";
+            //FeaturesAll = await _idao.LoadFeatures<FeatureObject, dynamic>(new { }, connString);
+            FeaturesAll = await _idao.Load<FeatureObject, dynamic>(new { }, connString, sql);
+
+            sql = "select * from HouseDetails";
+            houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
+            //houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
             foreach (HouseObject house in houseObjectList)
             {
-
-                Features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
+                sql = @"select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight from HouseFeatures 
+                        Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
+                        where HouseID = @HouseID";
+                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
+                //Features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
                 house.Features.AddRange(Features);
                 house.Score = house.GetScore();
             }
@@ -131,13 +164,16 @@
     public async Task ActionBegin(ActionEventArgs<HouseObject> args)
     {
         HouseObject house = args.Data;
+        string sql = string.Empty;
         try
         {
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
                 if (args.Action == "Edit")
                 {
-                    bool isEdit = await _idao.EditHouse<dynamic>(new {Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString);
+                    sql = $@"update HouseDetails set Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl where HouseID = @HouseID";
+                    bool isEdit = await _idao.Edit<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString, sql);
+                    //bool isEdit = await _idao.EditHouse<dynamic>(new {Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString);
                 }
                 else if (args.Action == "Add")
                 {
@@ -150,7 +186,7 @@
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
             {
-                
+
             }
         }
         catch (Exception ex)
@@ -165,22 +201,32 @@
     {
         FeatureObject features = args.Data;
         string sf = selectedFeature;
+        string sql = string.Empty;
+        bool result;
+        int id;
         try
         {
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
                 if (args.Action == "Edit")
                 {
-
+                    //Do a stored procedure,I'm not actually editing a feature but replacing it so we need a delete and insert
+                    sql = "update HouseFeatures set FeatureID = @FeatureID where HouseID=@HouseID and FeatureID = @PreviousFeatureID";
+                    result = await _idao.Edit<dynamic>(new {FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID, PreviousFeatureID = args.PreviousData.FeatureID }, connString, sql);
                 }
                 else if (args.Action == "Add")
                 {
+                    sql = $@"Insert into HouseFeatures (HouseID, FeatureID) 
+                        values (@HouseID, @FeatureID)";
 
-                    var result = await _idao.AddFeature<dynamic>(new {HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString);
+                    result = await _idao.Add<dynamic>(new {HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString, sql);
+
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
+                sql = "delete from HouseFeatures where HouseID=@HouseID and FeatureID = FeatureID";
+                bool isDeleted = await _idao.Delete<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = args.Data.FeatureID }, connString, sql);
             }
         }
         catch (Exception ex)

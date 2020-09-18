@@ -132,7 +132,7 @@ else
     [Inject] public IJSRuntime JsRuntime { get; set; }
 
     List<HouseObject> houseObjectList;
-    List<FeatureObject> features;
+    List<FeatureObject> Features;
     string connString;
 
     protected override async Task OnInitializedAsync()
@@ -140,14 +140,18 @@ else
         connString = _iconfig.GetConnectionString("defaultWork");
         try
         {
+            string sql = "select * from HouseDetails";
             //houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, _iconfig.GetConnectionString("defaultWork"));
-            houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
+            houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
 
             foreach (HouseObject house in houseObjectList)
             {
-
-                features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
-                house.Features.AddRange(features);
+                sql = @"select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight from HouseFeatures 
+                        Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
+                        where HouseID = @HouseID";
+                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
+                //features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
+                house.Features.AddRange(Features);
                 house.Score = house.GetScore();
             }
         }

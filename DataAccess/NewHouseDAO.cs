@@ -11,9 +11,8 @@ namespace DataAccess
 
     public class NewHouseDAO : INewHouseDAO
     {
-        public async Task<List<T>> LoadHouseData<T, U>(U parameters, string connString)
+        public async Task<List<T>> Load<T, U>(U parameters, string connString, string sql)
         {
-            string sql = "select * from HouseDetails";
             using (IDbConnection connection = new SqlConnection(connString))
             {
                 connection.Open();
@@ -22,48 +21,7 @@ namespace DataAccess
                 return rows.ToList();
             }
         }
-        public async Task<List<T>> LoadFeaturesByHouse<T, U>(U parameters, string connString)
-        {
-            string sql = @"select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight from HouseFeatures 
-                        Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
-                        where HouseID = @HouseID";
-            using (IDbConnection connection = new SqlConnection(connString))
-            {
-                connection.Open();
-                var rows = await connection.QueryAsync<T>(sql, parameters);
-
-                return rows.ToList();
-            }
-        }
-        public async Task<List<T>> LoadFeatures<T, U>(U parameters, string connString)
-        {
-            string sql = @"select FeatureID, [Name], [Description] from Features";
-            try
-            {
-                using (IDbConnection connection = new SqlConnection(connString))
-                {
-                    connection.Open();
-                    var rows = await connection.QueryAsync<T>(sql, parameters);
-
-                    return rows.ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-           
-        }
-        public Task UpdateHouse<T>(T parameters, string connString)
-        {
-            string sql = "";
-            using (IDbConnection connection = new SqlConnection(connString))
-            {
-                connection.Open();
-                return connection.ExecuteAsync(sql, parameters);
-
-            }
-        }
+       
         public async Task<int> AddHouse<T>(string address, decimal price, string zillow, string image, string connString)
         {
             string sql = $@"Insert into HouseDetails (Address, Price, ZillowUrl, ImageUrl) 
@@ -93,12 +51,27 @@ namespace DataAccess
 
             }
         }
-        public async Task<bool> AddFeature<T>(T parameters, string connString)
+        public async Task<bool> Add<T>(T parameters, string connString, string sql)
         {
-            string sql = $@"Insert into HouseFeatures (HouseID, FeatureID) 
-                        values (@HouseID, @FeatureID)";
-                        
-            
+           
+            using (IDbConnection connection = new SqlConnection(connString))
+            {
+                try
+                {
+                    connection.Open();
+                    await connection.ExecuteAsync(sql, parameters);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+
+            }
+        }
+        public async Task<bool> Edit<T>(T parameters, string connString, string sql)
+        {
 
             using (IDbConnection connection = new SqlConnection(connString))
             {
@@ -116,17 +89,15 @@ namespace DataAccess
 
             }
         }
-        public async Task<bool> EditHouse<T>(T parameters, string connString)
+        public async Task<bool> EditHouseFeatures<T>(T parameters, string connString, string sql)
         {
-            string sql = $@"update HouseDetails set Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl where HouseID = @HouseID";
-
-
 
             using (IDbConnection connection = new SqlConnection(connString))
             {
                 try
                 {
                     connection.Open();
+                    CommandType commandType = CommandType.StoredProcedure;
                     await connection.ExecuteAsync(sql, parameters);
                     return true;
                 }
@@ -138,19 +109,6 @@ namespace DataAccess
 
             }
         }
-
-
-        //public int DeleteHouse<T>(T parameters, string connString)
-        //{
-        //    string sql = "Delete From HouseDetails where ID = @HouseID";
-
-        //    using (IDbConnection connection = new SqlConnection(connString))
-        //    {
-        //        connection.Open();
-        //        return connection.Execute(sql, parameters);
-
-        //    }
-        //}
 
         public async Task<bool> DeleteHouse<T>(T parameters, string connString)
         {
@@ -224,10 +182,27 @@ namespace DataAccess
             return false;
         }
 
-        public Task<int> AddHouse<T>(T parameters, string connString)
+        public async Task<bool> Delete<T>(T parameters, string connString, string sql)
         {
-            throw new NotImplementedException();
+
+            using (IDbConnection connection = new SqlConnection(connString))
+            {
+                try
+                {
+                    connection.Open();
+                    await connection.ExecuteAsync(sql, parameters);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+
+            }
         }
+
+
     }
 
 }
