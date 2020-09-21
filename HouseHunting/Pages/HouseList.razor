@@ -6,6 +6,7 @@
 
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
+@inject IBL _ibl
 
 <h3>House List</h3>
 
@@ -126,7 +127,7 @@
     HouseObject currentHouse;
     FeatureObject currentFeature;
     SfGrid<HouseObject> Grid;
-
+    string sql = string.Empty;
     string connString;
 
 
@@ -135,28 +136,27 @@
         connString = _iconfig.GetConnectionString("defaultWork");
         try
         {
-            string sql = @"select FeatureID, [Name], [Description] from Features";
-            //FeaturesAll = await _idao.LoadFeatures<FeatureObject, dynamic>(new { }, connString);
+            sql = "spGetAllFeatures";
             FeaturesAll = await _idao.Load<FeatureObject, dynamic>(new { }, connString, sql);
 
-            sql = "select * from HouseDetails";
+            sql = "spGetAllHouseDetails";
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
-            //houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, connString);
+
             foreach (HouseObject house in houseObjectList)
             {
-                sql = @"select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight from HouseFeatures 
-                        Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
-                        where HouseID = @HouseID";
+                sql = "spGetFeaturesByHouseID";
                 Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
-                //Features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
+
                 house.Features.AddRange(Features);
                 house.Score = house.GetScore();
             }
         }
         catch (Exception ex)
         {
-
+            _ibl.GenerateStackTrace(ex);
         }
+
+
 
 
 
@@ -164,16 +164,15 @@
     public async Task ActionBegin(ActionEventArgs<HouseObject> args)
     {
         HouseObject house = args.Data;
-        string sql = string.Empty;
         try
         {
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
                 if (args.Action == "Edit")
                 {
-                    sql = $@"update HouseDetails set Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl where HouseID = @HouseID";
+                    sql = "spUpdateHouseDetails";
                     bool isEdit = await _idao.Edit<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString, sql);
-                    //bool isEdit = await _idao.EditHouse<dynamic>(new {Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString);
+
                 }
                 else if (args.Action == "Add")
                 {
@@ -182,6 +181,7 @@
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
+                //TODO make this SP
                 bool isDeleted = await _idao.DeleteHouse<dynamic>(new { HouseID = house.HouseID }, connString);
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
@@ -191,17 +191,14 @@
         }
         catch (Exception ex)
         {
-
+            _ibl.GenerateStackTrace(ex);
         }
-
-
 
     }
     public async Task ActionDetailBegin(ActionEventArgs<FeatureObject> args)
     {
         FeatureObject features = args.Data;
         string sf = selectedFeature;
-        string sql = string.Empty;
         bool result;
         int id;
         try
@@ -210,34 +207,26 @@
             {
                 if (args.Action == "Edit")
                 {
-                    sql = "update HouseFeatures set FeatureID = @FeatureID where HouseID=@HouseID and FeatureID = @PreviousFeatureID";
-                    result = await _idao.Edit<dynamic>(new {FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID, PreviousFeatureID = args.PreviousData.FeatureID }, connString, sql);
+                    sql = "spUpdateHouseFeatures";
+                    result = await _idao.Edit<dynamic>(new { FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID, PreviousFeatureID = args.PreviousData.FeatureID }, connString, sql);
                 }
                 else if (args.Action == "Add")
                 {
-                    sql = $@"Insert into HouseFeatures (HouseID, FeatureID) 
-                        values (@HouseID, @FeatureID)";
-
-                    result = await _idao.Add<dynamic>(new {HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString, sql);
-
+                    sql = "spInsertNewHouse";
+                    result = await _idao.Add<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString, sql);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
-                sql = "delete from HouseFeatures where HouseID=@HouseID and FeatureID = FeatureID";
+                sql = "spDeleteFeatureByHouseID";
                 bool isDeleted = await _idao.Delete<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = args.Data.FeatureID }, connString, sql);
             }
         }
         catch (Exception ex)
         {
-
+            _ibl.GenerateStackTrace(ex);
         }
 
-
-
     }
-    public async Task CellSave(CellSaveArgs<FeatureObject> Args)
-    {
 
-    }
 }

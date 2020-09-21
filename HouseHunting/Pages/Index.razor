@@ -149,37 +149,45 @@ else
 </style>
 @code {
 
-    //[Inject] public NavigationManager NavigationManager { get; set; }
     [Inject] public IJSRuntime JsRuntime { get; set; }
 
     List<HouseObject> houseObjectList;
     List<FeatureObject> Features;
     string connString;
+    string sql = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         connString = _iconfig.GetConnectionString("defaultWork");
+
+        sql = "spGetAllHouseDetails";
         try
         {
-            string sql = "select * from HouseDetails";
-            //houseObjectList = await _idao.LoadHouseData<HouseObject, dynamic>(new { }, _iconfig.GetConnectionString("defaultWork"));
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
-
-            foreach (HouseObject house in houseObjectList)
-            {
-                sql = @"select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight from HouseFeatures 
-                        Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
-                        where HouseID = @HouseID";
-                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
-                //features = await _idao.LoadFeaturesByHouse<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString);
-                house.Features.AddRange(Features);
-                house.Score = house.GetScore();
-            }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
 
         }
+
+
+        foreach (HouseObject house in houseObjectList)
+        {
+            
+            sql = "spGetFeaturesByHouseID";
+            try
+            {
+                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            house.Features.AddRange(Features);
+            house.Score = house.GetScore();
+        }
+
 
 
     }
@@ -191,7 +199,7 @@ else
         {
             await JsRuntime.InvokeAsync<object>("open", url, "_blank");
         }
-        catch
+        catch (Exception ex)
         {
 
         }

@@ -138,7 +138,13 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="View\HouseFeatures.sql" />
-    <Build Include="StoredProcedures\spFeaturesByHouse.sql" />
+    <Build Include="StoredProcedures\spGetAllHouseDetails.sql" />
+    <Build Include="StoredProcedures\spGetFeaturesByHouseID.sql" />
+    <Build Include="StoredProcedures\spUpdateHouseDetails.sql" />
+    <Build Include="StoredProcedures\spUpdateHouseFeatures.sql" />
+    <Build Include="StoredProcedures\spInsertNewHouse.sql" />
+    <Build Include="StoredProcedures\spDeleteFeatureByHouseID.sql" />
+    <Build Include="StoredProcedures\spGetAllFeatures.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HousePublishSql.publish.xml" />

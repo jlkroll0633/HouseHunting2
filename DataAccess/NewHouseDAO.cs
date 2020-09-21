@@ -13,15 +13,23 @@ namespace DataAccess
     {
         public async Task<List<T>> Load<T, U>(U parameters, string connString, string sql)
         {
-            using (IDbConnection connection = new SqlConnection(connString))
+            try
             {
-                connection.Open();
-                var rows = await connection.QueryAsync<T>(sql, parameters);
+                using (IDbConnection connection = new SqlConnection(connString))
+                {
+                    connection.Open();
+                    var rows = await connection.QueryAsync<T>(sql, parameters, null, null, CommandType.StoredProcedure);
 
-                return rows.ToList();
+                    return rows.ToList();
+                }
             }
+            catch (Exception ex)
+            {
+                throw new Exception($"Problem exectuing stored proc: {sql}", ex);
+            }
+
         }
-       
+
         public async Task<int> AddHouse<T>(string address, decimal price, string zillow, string image, string connString)
         {
             string sql = $@"Insert into HouseDetails (Address, Price, ZillowUrl, ImageUrl) 
@@ -39,32 +47,32 @@ namespace DataAccess
                 try
                 {
                     connection.Open();
-                    await connection.ExecuteAsync(sql, p);
+                    await connection.ExecuteAsync(sql, p, null, null, CommandType.StoredProcedure);
                     int newID = p.Get<int>("@HouseID");
                     return newID;
                 }
                 catch (Exception ex)
                 {
-                    return -1;
+                    throw new Exception($"Could not add house using stored proc: {sql}.", ex);
                 }
-               
+
 
             }
         }
         public async Task<bool> Add<T>(T parameters, string connString, string sql)
         {
-           
+
             using (IDbConnection connection = new SqlConnection(connString))
             {
                 try
                 {
                     connection.Open();
-                    await connection.ExecuteAsync(sql, parameters);
+                    await connection.ExecuteAsync(sql, parameters, null, null, CommandType.StoredProcedure);
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    return false;
+                    throw new Exception($"Problem executing stored proc: {sql}", ex);
                 }
 
 
@@ -75,16 +83,16 @@ namespace DataAccess
 
             using (IDbConnection connection = new SqlConnection(connString))
             {
-                try
-                {
-                    connection.Open();
-                    await connection.ExecuteAsync(sql, parameters);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    return false;
-                }
+                //try
+                //{
+                connection.Open();
+                await connection.ExecuteAsync(sql, parameters, null, null, CommandType.StoredProcedure);
+                return true;
+                //}
+                //catch (Exception ex)
+                //{
+                //    return false;
+                //}
 
 
             }
@@ -97,13 +105,12 @@ namespace DataAccess
                 try
                 {
                     connection.Open();
-                    CommandType commandType = CommandType.StoredProcedure;
-                    await connection.ExecuteAsync(sql, parameters);
+                    await connection.ExecuteAsync(sql, parameters, null, null, CommandType.StoredProcedure);
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    return false;
+                    throw new Exception($"Could not edit house using stored proc: {sql}", ex);
                 }
 
 
@@ -112,7 +119,7 @@ namespace DataAccess
 
         public async Task<bool> DeleteHouse<T>(T parameters, string connString)
         {
-          
+
             string sql = "Delete From HouseDetails where HouseID = @HouseID";
             string sql2 = "Delete From HouseFeatures where HouseID = @HouseID";
             int rows;
@@ -124,24 +131,16 @@ namespace DataAccess
                     if (HasFeatures(parameters, connection))
                     {
                         //Begin transaction
-                        if(connection.State != ConnectionState.Open)
+                        if (connection.State != ConnectionState.Open)
                         {
                             connection.Open();
                         }
                         using (IDbTransaction transaction = connection.BeginTransaction())
                         {
-                            try
-                            {
-                                rows = await connection.ExecuteAsync(sql, parameters, transaction);
-                                rows = await connection.ExecuteAsync(sql2, parameters, transaction);
-                                transaction.Commit();
-                            }
-                            catch (Exception ex)
-                            {
-                                transaction.Rollback();
-                                Console.WriteLine($" Delete transaction cancelled. {ex.Message}");
-                                throw new Exception(ex.Message, ex.InnerException);
-                            }
+
+                            rows = await connection.ExecuteAsync(sql2, parameters, transaction);
+                            rows = await connection.ExecuteAsync(sql, parameters, transaction);
+                            transaction.Commit();
 
                         }
 
@@ -158,25 +157,24 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Something went wrong deleting. {ex.Message}");
-                return false;
+                throw new Exception($"Delete transaction cancelled.", ex);
             }
-       
+
         }
 
         private bool HasFeatures<T>(T parameters, IDbConnection connection)
         {
             string sql = "Select Count (HouseID) From HouseFeatures where HouseID = @HouseID";
-           
-                object obj = connection.ExecuteScalar(sql, parameters);
-                if (obj != null)
+
+            object obj = connection.ExecuteScalar(sql, parameters);
+            if (obj != null)
+            {
+                int count = Convert.ToInt32(obj);
+                if (count > 0)
                 {
-                    int count = Convert.ToInt32(obj);
-                    if (count > 1)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+            }
 
 
             return false;
@@ -184,22 +182,23 @@ namespace DataAccess
 
         public async Task<bool> Delete<T>(T parameters, string connString, string sql)
         {
-
-            using (IDbConnection connection = new SqlConnection(connString))
+            bool isDeleted = false;
+            try
             {
-                try
+                using (IDbConnection connection = new SqlConnection(connString))
                 {
+
                     connection.Open();
-                    await connection.ExecuteAsync(sql, parameters);
-                    return true;
+                    await connection.ExecuteAsync(sql, parameters, null, null, CommandType.StoredProcedure);
+                    isDeleted = true;
                 }
-                catch (Exception ex)
-                {
-                    return false;
-                }
-
-
             }
+            catch (Exception ex)
+            {
+                throw new Exception($"Problem executing stored proc: {sql}.", ex);
+            }
+            return isDeleted;
+
         }
 
 
