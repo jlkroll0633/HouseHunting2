@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace DataAccess
@@ -15,6 +16,8 @@ namespace DataAccess
         {
             try
             {
+                //AnotherMethod();
+                //throw new Exception("TEST");
                 using (IDbConnection connection = new SqlConnection(connString))
                 {
                     connection.Open();
@@ -25,12 +28,19 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception($"Problem exectuing stored proc: {sql}", ex);
+                ExceptionDispatchInfo.Capture(ex).Throw();
+                throw;
+                //throw new Exception($"Problem exectuing stored proc: {sql}", ex);
             }
 
         }
 
-        public async Task<int> AddHouse<T>(string address, decimal price, string zillow, string image, string connString)
+        private void AnotherMethod()
+        {
+            throw new Exception("TEST");
+        }
+
+        public async Task<int> AddHouseAsync<T>(string address, decimal price, string zillow, string image, string connString)
         {
             string sql = $@"Insert into HouseDetails (Address, Price, ZillowUrl, ImageUrl) 
                         values (@Address, @Price, @ZillowUrl, @ImageUrl)
@@ -53,13 +63,15 @@ namespace DataAccess
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Could not add house using stored proc: {sql}.", ex);
+                    ExceptionDispatchInfo.Capture(ex).Throw();
+                    throw;
+                    //throw new Exception($"Could not add house using stored proc: {sql}.", ex);
                 }
 
 
             }
         }
-        public async Task<bool> Add<T>(T parameters, string connString, string sql)
+        public async Task<bool> AddAsync<T>(T parameters, string connString, string sql)
         {
 
             using (IDbConnection connection = new SqlConnection(connString))
@@ -72,32 +84,35 @@ namespace DataAccess
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Problem executing stored proc: {sql}", ex);
+                    ExceptionDispatchInfo.Capture(ex).Throw();
+                    throw;
+                    //throw new Exception($"Problem executing stored proc: {sql}", ex);
                 }
 
 
             }
         }
-        public async Task<bool> Edit<T>(T parameters, string connString, string sql)
+        public async Task<bool> EditAsync<T>(T parameters, string connString, string sql)
         {
 
             using (IDbConnection connection = new SqlConnection(connString))
             {
-                //try
-                //{
-                connection.Open();
+                try
+                {
+                    connection.Open();
                 await connection.ExecuteAsync(sql, parameters, null, null, CommandType.StoredProcedure);
                 return true;
-                //}
-                //catch (Exception ex)
-                //{
-                //    return false;
-                //}
+                }
+                catch (Exception ex)
+                {
+                    ExceptionDispatchInfo.Capture(ex).Throw();
+                    throw;
+                }
 
 
             }
         }
-        public async Task<bool> EditHouseFeatures<T>(T parameters, string connString, string sql)
+        public async Task<bool> EditHouseFeaturesAsync<T>(T parameters, string connString, string sql)
         {
 
             using (IDbConnection connection = new SqlConnection(connString))
@@ -110,14 +125,16 @@ namespace DataAccess
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Could not edit house using stored proc: {sql}", ex);
+                    ExceptionDispatchInfo.Capture(ex).Throw();
+                    throw;
+                    //throw new Exception($"Could not edit house using stored proc: {sql}", ex);
                 }
 
 
             }
         }
 
-        public async Task<bool> DeleteHouse<T>(T parameters, string connString)
+        public async Task<bool> DeleteHouseAsync<T>(T parameters, string connString)
         {
 
             string sql = "Delete From HouseDetails where HouseID = @HouseID";
@@ -157,7 +174,9 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception($"Delete transaction cancelled.", ex);
+                ExceptionDispatchInfo.Capture(ex).Throw();
+                throw;
+                //throw new Exception($"Delete transaction cancelled.", ex);
             }
 
         }
@@ -180,8 +199,9 @@ namespace DataAccess
             return false;
         }
 
-        public async Task<bool> Delete<T>(T parameters, string connString, string sql)
+        public async Task<bool> DeleteAsync<T>(T parameters, string connString, string sql)
         {
+            //TODO does this need to be async?
             bool isDeleted = false;
             try
             {
@@ -195,7 +215,9 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception($"Problem executing stored proc: {sql}.", ex);
+                ExceptionDispatchInfo.Capture(ex).Throw();
+                throw;
+                //throw new Exception($"Problem executing stored proc: {sql}.", ex);
             }
             return isDeleted;
 

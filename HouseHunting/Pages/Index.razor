@@ -5,6 +5,7 @@
 
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
+@inject IBL _ibl
 
 @if (houseObjectList == null)
 {
@@ -164,31 +165,27 @@ else
         try
         {
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
+
+
+
+            foreach (HouseObject house in houseObjectList)
+            {
+
+                sql = "spGetFeaturesByHouseID";
+
+                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
+
+
+                house.Features.AddRange(Features);
+                house.Score = house.GetScore();
+            }
+
         }
         catch (Exception ex)
         {
-
-        }
-
-
-        foreach (HouseObject house in houseObjectList)
-        {
             
-            sql = "spGetFeaturesByHouseID";
-            try
-            {
-                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-            house.Features.AddRange(Features);
-            house.Score = house.GetScore();
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
-
-
 
     }
 
@@ -201,7 +198,7 @@ else
         }
         catch (Exception ex)
         {
-
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
     }

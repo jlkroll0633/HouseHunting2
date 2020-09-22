@@ -8,15 +8,18 @@ namespace HouseHunting.Buisness_Logic
 {
     public class BL : IBL
     {
-        public void GenerateStackTrace(Exception ex)
+        public string GenerateStackTrace(Exception ex)
         {
             var inner = ex.InnerException;
+            string stackTrace = string.Empty;
             while (inner != null)
             {
                 //keeps writing multi layer stack traces
-                Debug.Write(inner.StackTrace);
+                //Debug.Write(inner.StackTrace);
+                stackTrace += inner.StackTrace;
                 inner = inner.InnerException;
             }
+            return stackTrace;
         }
 
     }

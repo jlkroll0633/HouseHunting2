@@ -20,7 +20,7 @@
                     AllowPaging="true"
                     AllowSorting="true">
                 <GridPageSettings PageSize="7"></GridPageSettings>
-                <GridEvents OnActionBegin="ActionBegin" TValue="HouseObject">   </GridEvents>
+                <GridEvents OnActionBegin="ActionBeginAsync" TValue="HouseObject">   </GridEvents>
                 <GridEditSettings AllowAdding="true"
                                   AllowDeleting="true"
                                   AllowEditing="true"
@@ -37,7 +37,7 @@
                                                 <SfGrid DataSource="@features"
                                                         TValue="FeatureObject"
                                                         Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
-                                                    <GridEvents OnActionBegin="ActionDetailBegin" TValue="FeatureObject">   </GridEvents>
+                                                    <GridEvents OnActionBegin="ActionDetailBeginAsync" TValue="FeatureObject">   </GridEvents>
                                                     <GridEditSettings AllowAdding="true"
                                                                       AllowDeleting="true"
                                                                       AllowEditing="true"
@@ -153,7 +153,7 @@
         }
         catch (Exception ex)
         {
-            _ibl.GenerateStackTrace(ex);
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
 
@@ -161,7 +161,7 @@
 
 
     }
-    public async Task ActionBegin(ActionEventArgs<HouseObject> args)
+    public async Task ActionBeginAsync(ActionEventArgs<HouseObject> args)
     {
         HouseObject house = args.Data;
         try
@@ -171,18 +171,18 @@
                 if (args.Action == "Edit")
                 {
                     sql = "spUpdateHouseDetails";
-                    bool isEdit = await _idao.Edit<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString, sql);
+                    bool isEdit = await _idao.EditAsync<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString, sql);
 
                 }
                 else if (args.Action == "Add")
                 {
-                    int newId = await _idao.AddHouse<HouseObject>(house.Address, house.Price, house.ZillowUrl, house.ImageUrl, connString);
+                    int newId = await _idao.AddHouseAsync<HouseObject>(house.Address, house.Price, house.ZillowUrl, house.ImageUrl, connString);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
                 //TODO make this SP
-                bool isDeleted = await _idao.DeleteHouse<dynamic>(new { HouseID = house.HouseID }, connString);
+                bool isDeleted = await _idao.DeleteHouseAsync<dynamic>(new { HouseID = house.HouseID }, connString);
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
             {
@@ -191,11 +191,11 @@
         }
         catch (Exception ex)
         {
-            _ibl.GenerateStackTrace(ex);
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
     }
-    public async Task ActionDetailBegin(ActionEventArgs<FeatureObject> args)
+    public async Task ActionDetailBeginAsync(ActionEventArgs<FeatureObject> args)
     {
         FeatureObject features = args.Data;
         string sf = selectedFeature;
@@ -208,23 +208,23 @@
                 if (args.Action == "Edit")
                 {
                     sql = "spUpdateHouseFeatures";
-                    result = await _idao.Edit<dynamic>(new { FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID, PreviousFeatureID = args.PreviousData.FeatureID }, connString, sql);
+                    result = await _idao.EditAsync<dynamic>(new { FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID, PreviousFeatureID = args.PreviousData.FeatureID }, connString, sql);
                 }
                 else if (args.Action == "Add")
                 {
                     sql = "spInsertNewHouse";
-                    result = await _idao.Add<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString, sql);
+                    result = await _idao.AddAsync<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString, sql);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
                 sql = "spDeleteFeatureByHouseID";
-                bool isDeleted = await _idao.Delete<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = args.Data.FeatureID }, connString, sql);
+                bool isDeleted = await _idao.DeleteAsync<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = args.Data.FeatureID }, connString, sql);
             }
         }
         catch (Exception ex)
         {
-            _ibl.GenerateStackTrace(ex);
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
     }

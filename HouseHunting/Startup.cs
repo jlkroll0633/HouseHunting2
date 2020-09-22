@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using HouseHunting.Data;
 using Syncfusion.Blazor;
 using DataAccess;
+using HouseHunting.Buisness_Logic;
 
 namespace HouseHunting
 {
@@ -34,7 +35,8 @@ namespace HouseHunting
             services.AddSingleton<WeatherForecastService>();
             services.AddSyncfusionBlazor();
             services.AddSingleton<INewHouseDAO, NewHouseDAO>();
-           
+            services.AddSingleton<IBL, BL>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

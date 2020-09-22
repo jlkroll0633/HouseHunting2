@@ -7,6 +7,7 @@ namespace HouseHunting
 {
     public interface IBL
     {
-        void GenerateStackTrace(Exception ex);
+        
+        string GenerateStackTrace(Exception ex);
     }
 }
