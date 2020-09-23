@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿
+using HouseHunting.Data;
+using System;
 
 namespace HouseHunting.Buisness_Logic
 {
@@ -21,6 +19,7 @@ namespace HouseHunting.Buisness_Logic
             }
             return stackTrace;
         }
+       
 
     }
 }

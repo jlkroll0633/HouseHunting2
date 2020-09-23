@@ -159,11 +159,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        connString = _iconfig.GetConnectionString("defaultHome");
+
 
         sql = "spGetAllHouseDetails";
         try
         {
+            connString = _iconfig.GetConnectionString("defaultWork");
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
 
 
@@ -183,7 +184,7 @@ else
         }
         catch (Exception ex)
         {
-            
+
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 

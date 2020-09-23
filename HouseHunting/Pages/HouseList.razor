@@ -133,9 +133,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        connString = _iconfig.GetConnectionString("defaultHome");
+
         try
         {
+            connString = _iconfig.GetConnectionString("defaultWork");
             sql = "spGetAllFeatures";
             FeaturesAll = await _idao.Load<FeatureObject, dynamic>(new { }, connString, sql);
 

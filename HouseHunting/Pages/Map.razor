@@ -1,0 +1,122 @@
+﻿@page "/map"
+
+@using  Microsoft.Extensions.Configuration
+@using HouseHunting.Data
+
+@inject INewHouseDAO _idao
+@inject IConfiguration _iconfig
+@inject IBL _ibl
+
+<h3>Map</h3>
+@{ if (mapMarkers == null)
+    {
+        <p><em>Loading Locations...</em></p>
+    }
+    else
+    {
+<SfMaps>
+    <MapsZoomSettings Enable="true" ShouldZoomInitially="true" />
+    <MapsLayers>
+        <MapsLayer ShapeData="@MapShapeData">
+            <MapsMarkerSettings>
+                <MapsMarker Visible="true"
+                            DataSource="@mapMarkers"
+                            Shape="MarkerType.Star">
+                </MapsMarker>
+            </MapsMarkerSettings>
+
+
+        </MapsLayer>
+    </MapsLayers>
+
+</SfMaps>
+    }
+}
+
+
+
+
+
+@code {
+
+    string sql = string.Empty;
+    string connString = string.Empty;
+
+    List<MarkerModel> mapMarkers;
+    List<FeatureObject> Features;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<HouseObject> houseObjectList;
+
+        sql = "spGetAllHouseDetails";
+        try
+        {
+            connString = _iconfig.GetConnectionString("defaultWork");
+            mapMarkers = await _idao.Load<MarkerModel, dynamic>(new { }, connString, sql);
+
+            foreach (MarkerModel marker in mapMarkers)
+            {
+
+                sql = "spGetFeaturesByHouseID";
+
+                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = marker.HouseID }, connString, sql);
+                sql = "spGetMapMarkerByAddress";
+                marker.Features.AddRange(Features);
+                marker.Score = marker.GetScore();
+                List<MarkerModel> location = new List<MarkerModel>();
+                location = await _idao.Load<MarkerModel, dynamic>(new { Address = marker.Address }, connString, sql);
+                marker.Latitude = location[0].Latitude;
+                marker.Longitude = location[0].Longitude;
+                marker.Name = marker.HouseID.ToString();
+
+
+                ////MarkerModel marker = new MarkerModel(house);
+                ////marker.Point = _ibl.ConvertAddressToLocation(marker.Address);
+                ////mapMarkers.Add(marker);
+            }
+
+            //connString = _iconfig.GetConnectionString("defaultWork");
+            //houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
+
+            //foreach (HouseObject house in houseObjectList)
+            //{
+
+            //    sql = "spGetFeaturesByHouseID";
+
+            //    Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
+
+            //    house.Features.AddRange(Features);
+            //    house.Score = house.GetScore();
+
+            //    MarkerModel marker = new MarkerModel(house);
+            //    marker.Point = _ibl.ConvertAddressToLocation(marker.Address);
+            //    mapMarkers.Add(marker);
+            //}
+
+
+        }
+        catch (Exception ex)
+        {
+
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
+        }
+    }
+
+
+    public class MapDataSettings
+    {
+        public bool async { get; set; }
+        public string dataOptions { get; set; }
+        public string type { get; set; }
+    }
+    public MapDataSettings MapShapeData = new MapDataSettings
+    {
+        async = true,
+        type = "GET",
+        dataOptions = "files/maps/usa.json"
+    };
+
+   
+}

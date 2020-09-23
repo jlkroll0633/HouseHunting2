@@ -14,6 +14,7 @@ using Syncfusion.Blazor;
 using DataAccess;
 using HouseHunting.Buisness_Logic;
 
+
 namespace HouseHunting
 {
     public class Startup
