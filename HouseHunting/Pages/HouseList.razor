@@ -133,7 +133,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        connString = _iconfig.GetConnectionString("defaultWork");
+        connString = _iconfig.GetConnectionString("defaultHome");
         try
         {
             sql = "spGetAllFeatures";

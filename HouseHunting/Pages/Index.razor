@@ -159,7 +159,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        connString = _iconfig.GetConnectionString("defaultWork");
+        connString = _iconfig.GetConnectionString("defaultHome");
 
         sql = "spGetAllHouseDetails";
         try

@@ -29,6 +29,7 @@ INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (1
 INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (12, N'Price_Under100', N'price under $100k', 7)
 INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (13, N'Price_Under120', N'price under $120k', 4)
 INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (14, N'Price_Under140', N'price under $140k', 2)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (15, N'Not manufatured', N'Not a manufactured home', 4)
 SET IDENTITY_INSERT [dbo].[Features] OFF
 
 end

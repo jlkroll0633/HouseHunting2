@@ -57,7 +57,7 @@ namespace DataAccess
                 try
                 {
                     connection.Open();
-                    await connection.ExecuteAsync(sql, p, null, null, CommandType.StoredProcedure);
+                    await connection.ExecuteAsync(sql, p);
                     int newID = p.Get<int>("@HouseID");
                     return newID;
                 }
