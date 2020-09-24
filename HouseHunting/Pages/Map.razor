@@ -14,28 +14,46 @@
     }
     else
     {
-<SfMaps>
-    <MapsZoomSettings Enable="true" ShouldZoomInitially="true" />
-    <MapsLayers>
-        <MapsLayer ShapeData="@MapShapeData">
-            <MapsMarkerSettings>
-                <MapsMarker Visible="true"
-                            DataSource="@mapMarkers"
-                            Shape="MarkerType.Star">
-                </MapsMarker>
-            </MapsMarkerSettings>
 
 
-        </MapsLayer>
-    </MapsLayers>
+        <SfMaps ModelType="@typeof(IDataTemplate)">
+            <MapsTitleSettings Text="Saved Houses" />
+            <MapsCenterPosition Latitude="35.323490" Longitude="-91.738187" />
+            <MapsZoomSettings Enable="true" ShouldZoomInitially="true" />
+            <MapsLayers>
+                <MapsLayer LayerType="ShapeLayerType.OSM">
+                    <MapsMarkerSettings>
+                        <MapsMarker Visible="true" DataSource="@mapMarkers" Shape="MarkerType.Star" Height="15" Width="15">
+                            <ChildContent>
+                                <MapsMarkerTooltipSettings Visible="true" Format="Score: <b>${Score}</b><br>Price: <b>${Price}</b><br>Address: <b>${Address}</b><br>" />
+                            </ChildContent>
+                            @*<MarkerTemplate>
+                                @{
+                                    <div>
+                                        <img class="markerTemplate" style="margin-top:-10px;margin-left:-10px;" src="images/house1.png" />
+                                    </div>
+                                 }
+                            </MarkerTemplate>*@
+                         
+                        </MapsMarker>
+                    </MapsMarkerSettings>
+                </MapsLayer>
+            </MapsLayers>
+        </SfMaps>
 
-</SfMaps>
+
+       
     }
 }
-
-
-
-
+@*<style>
+    .markerTemplate {
+        height: 30px;
+        width: 20px;
+        display: block;
+        margin: auto;
+        font-size: 14px;
+    }
+</style>*@
 
 @code {
 
@@ -71,52 +89,15 @@
                 marker.Longitude = location[0].Longitude;
                 marker.Name = marker.HouseID.ToString();
 
-
-                ////MarkerModel marker = new MarkerModel(house);
-                ////marker.Point = _ibl.ConvertAddressToLocation(marker.Address);
-                ////mapMarkers.Add(marker);
             }
-
-            //connString = _iconfig.GetConnectionString("defaultWork");
-            //houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
-
-            //foreach (HouseObject house in houseObjectList)
-            //{
-
-            //    sql = "spGetFeaturesByHouseID";
-
-            //    Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
-
-            //    house.Features.AddRange(Features);
-            //    house.Score = house.GetScore();
-
-            //    MarkerModel marker = new MarkerModel(house);
-            //    marker.Point = _ibl.ConvertAddressToLocation(marker.Address);
-            //    mapMarkers.Add(marker);
-            //}
-
 
         }
         catch (Exception ex)
         {
-
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
     }
-
-
-    public class MapDataSettings
-    {
-        public bool async { get; set; }
-        public string dataOptions { get; set; }
-        public string type { get; set; }
-    }
-    public MapDataSettings MapShapeData = new MapDataSettings
-    {
-        async = true,
-        type = "GET",
-        dataOptions = "files/maps/usa.json"
-    };
-
    
+
+
 }
