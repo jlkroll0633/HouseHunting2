@@ -1,13 +1,15 @@
 ﻿@page "/map"
 
-@using  Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Configuration
 @using HouseHunting.Data
-
+@using Microsoft.Extensions.Logging
+@inject ILogger<Map> _logger
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 @inject IBL _ibl
 
-<h3>Map</h3>
+
+
 @{ if (mapMarkers == null)
     {
         <p><em>Loading Locations...</em></p>
@@ -19,7 +21,7 @@
         <SfMaps ModelType="@typeof(IDataTemplate)">
             <MapsTitleSettings Text="Saved Houses" />
             <MapsCenterPosition Latitude="35.323490" Longitude="-91.738187" />
-            <MapsZoomSettings Enable="true" ShouldZoomInitially="true" />
+            <MapsZoomSettings Enable="true" ShouldZoomInitially="true" MouseWheelZoom="true" EnablePanning="true" PinchZooming="true" />
             <MapsLayers>
                 <MapsLayer LayerType="ShapeLayerType.OSM">
                     <MapsMarkerSettings>
@@ -28,13 +30,13 @@
                                 <MapsMarkerTooltipSettings Visible="true" Format="Score: <b>${Score}</b><br>Price: <b>${Price}</b><br>Address: <b>${Address}</b><br>" />
                             </ChildContent>
                             @*<MarkerTemplate>
-                                @{
-                                    <div>
-                                        <img class="markerTemplate" style="margin-top:-10px;margin-left:-10px;" src="images/house1.png" />
-                                    </div>
-                                 }
-                            </MarkerTemplate>*@
-                         
+                                    @{
+                                        <div>
+                                            <img class="markerTemplate" style="margin-top:-10px;margin-left:-10px;" src="images/house1.png" />
+                                        </div>
+                                     }
+                                </MarkerTemplate>*@
+
                         </MapsMarker>
                     </MapsMarkerSettings>
                 </MapsLayer>
@@ -42,18 +44,18 @@
         </SfMaps>
 
 
-       
+
     }
 }
 @*<style>
-    .markerTemplate {
-        height: 30px;
-        width: 20px;
-        display: block;
-        margin: auto;
-        font-size: 14px;
-    }
-</style>*@
+        .markerTemplate {
+            height: 30px;
+            width: 20px;
+            display: block;
+            margin: auto;
+            font-size: 14px;
+        }
+    </style>*@
 
 @code {
 
@@ -94,10 +96,11 @@
         }
         catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Warning in initialize map page {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
     }
-   
+
 
 
 }

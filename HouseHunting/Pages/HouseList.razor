@@ -3,6 +3,8 @@
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Data
+@using Microsoft.Extensions.Logging
+@inject ILogger<HouseList> _logger
 
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
@@ -19,7 +21,7 @@
                     @ref="Grid"
                     AllowPaging="true"
                     AllowSorting="true">
-                <GridPageSettings PageSize="7"></GridPageSettings>
+                <GridPageSettings PageSize="30"></GridPageSettings>
                 <GridEvents OnActionBegin="ActionBeginAsync" TValue="HouseObject">   </GridEvents>
                 <GridEditSettings AllowAdding="true"
                                   AllowDeleting="true"
@@ -34,35 +36,35 @@
                             HouseObject house = (context as HouseObject);
                             var features = house.Features;
                             currentHouse = house;
-                                                <SfGrid DataSource="@features"
-                                                        TValue="FeatureObject"
-                                                        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
-                                                    <GridEvents OnActionBegin="ActionDetailBeginAsync" TValue="FeatureObject">   </GridEvents>
-                                                    <GridEditSettings AllowAdding="true"
-                                                                      AllowDeleting="true"
-                                                                      AllowEditing="true"
-                                                                      Mode="EditMode.Normal">
+                            <SfGrid DataSource="@features"
+                                    TValue="FeatureObject"
+                                    Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
+                                <GridEvents OnActionBegin="ActionDetailBeginAsync" TValue="FeatureObject">   </GridEvents>
+                                <GridEditSettings AllowAdding="true"
+                                                  AllowDeleting="true"
+                                                  AllowEditing="true"
+                                                  Mode="EditMode.Normal">
 
-                                                    </GridEditSettings>
-                                                    <GridColumns>
+                                </GridEditSettings>
+                                <GridColumns>
 
 
-                                                        <GridColumn Field=@nameof(FeatureObject.Description)
-                                                                    HeaderText="Feature"
-                                                                    Width="110"
-                                                                    EditType="EditType.DropDownEdit">
-                                                            <EditTemplate Context="editContext">
-                                                                <SfDropDownList ID="Description" TValue="Int32" DataSource="FeaturesAll" TItem="FeatureObject"
-                                                                                @bind-Value="((editContext as FeatureObject).FeatureID)">
-                                                                    <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
-                                                                </SfDropDownList>
-                                                            </EditTemplate>
-                                                           
-                                                        </GridColumn>
+                                    <GridColumn Field=@nameof(FeatureObject.Description)
+                                                HeaderText="Feature"
+                                                Width="110"
+                                                EditType="EditType.DropDownEdit">
+                                        <EditTemplate Context="editContext">
+                                            <SfDropDownList ID="Description" TValue="Int32" DataSource="FeaturesAll" TItem="FeatureObject"
+                                                            @bind-Value="((editContext as FeatureObject).FeatureID)">
+                                                <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
+                                            </SfDropDownList>
+                                        </EditTemplate>
 
-                                                    </GridColumns>
-                                                </SfGrid>
-                                              
+                                    </GridColumn>
+
+                                </GridColumns>
+                            </SfGrid>
+
                         }
                     </DetailTemplate>
                 </GridTemplates>
@@ -97,10 +99,10 @@
 
                     </GridColumn>
                     @*<GridColumn Field=@nameof(HouseObject.Features)
-                                HeaderText="Zillow"
-                                Width="160"
-                                Visible="false"
-                                EditType="EditType.DropDownEdit">*@
+                        HeaderText="Zillow"
+                        Width="160"
+                        Visible="false"
+                        EditType="EditType.DropDownEdit">*@
 
                     @*</GridColumn>*@
                     <GridColumn Field=@nameof(HouseObject.ZillowUrl)
@@ -154,6 +156,7 @@
         }
         catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Warning in initialize house list page {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
@@ -192,6 +195,7 @@
         }
         catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Warning in ActionBeginAsync {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
@@ -225,6 +229,7 @@
         }
         catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Warning in ActionDetailBeginAsync {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
