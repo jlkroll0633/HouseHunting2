@@ -164,7 +164,7 @@ else
         sql = "spGetAllHouseDetails";
         try
         {
-            connString = _iconfig.GetConnectionString("defaultWork");
+            connString = _iconfig.GetConnectionString("defaultHome");
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
 
 

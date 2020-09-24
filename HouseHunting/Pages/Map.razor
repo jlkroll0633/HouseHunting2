@@ -73,7 +73,7 @@
         sql = "spGetAllHouseDetails";
         try
         {
-            connString = _iconfig.GetConnectionString("defaultWork");
+            connString = _iconfig.GetConnectionString("defaultHome");
             mapMarkers = await _idao.Load<MarkerModel, dynamic>(new { }, connString, sql);
 
             foreach (MarkerModel marker in mapMarkers)

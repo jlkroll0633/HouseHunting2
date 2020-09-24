@@ -138,7 +138,7 @@
 
         try
         {
-            connString = _iconfig.GetConnectionString("defaultWork");
+            connString = _iconfig.GetConnectionString("defaultHome");
             sql = "spGetAllFeatures";
             FeaturesAll = await _idao.Load<FeatureObject, dynamic>(new { }, connString, sql);
 
