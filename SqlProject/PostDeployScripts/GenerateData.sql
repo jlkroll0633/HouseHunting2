@@ -15,22 +15,24 @@ begin
 
 SET IDENTITY_INSERT [dbo].[Features] ON 
 
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (1, N'Year Round Spring', N'Year Round Spring', 10)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (2, N'Partial Spring', N'Spring, not year round', 3)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (3, N'Pond', N'Pond on property', 8)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (4, N'Creek', N'Creek on property', 10)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (5, N'Acres_15plus', N'15+ acres', 5)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (6, N'Acres_20plus', N'20+ acres', 8)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (7, N'Acres_30plus', N'30+ acres', 10)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (8, N'Fencing', N'Fenced Area(s)', 6)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (9, N'Well', N'Private well on peoperty', 6)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (10, N'Outbuildings', N'Outbuildings', 4)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (11, N'Price_Under90', N'price under $90k', 10)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (12, N'Price_Under100', N'price under $100k', 7)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (13, N'Price_Under120', N'price under $120k', 4)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (14, N'Price_Under140', N'price under $140k', 2)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (15, N'Not Manufactured', N'Not a manufactured home', 4)
-INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight]) VALUES (16, N'Seclusion', N'Secluded from neighbors', 7)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (1, N'Year Round Spring', N'Year Round Spring', 10, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (2, N'Partial Spring', N'Spring, not year round', 3, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (3, N'Pond', N'Pond on property', 8, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (4, N'Creek', N'Creek on property', 10, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (5, N'Acres_15plus', N'15+ acres', 5, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (6, N'Acres_20plus', N'20+ acres', 8, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (7, N'Acres_30plus', N'30+ acres', 10, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (8, N'Fencing', N'Fenced Area(s)', 6, 1)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (9, N'Well', N'Private well on peoperty', 6, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (10, N'Outbuildings', N'Outbuildings', 4, 1)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (11, N'Price_Under90', N'price under $90k', 10, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (12, N'Price_Under100', N'price under $100k', 7, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (13, N'Price_Under120', N'price under $120k', 4, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (14, N'Price_Under140', N'price under $140k', 2, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (15, N'Not Manufactured', N'Not a manufactured home', 4, 0)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (16, N'Seclusion', N'Secluded from neighbors', 7, 1)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (17, N'House Condition', N'House condition', 0, 1)
+INSERT [dbo].[Features] ([FeatureID], [Name], [Description], [Weight], [IsEditable]) VALUES (18, N'Land Layout', N'how desirable the land is', 0, 1)
 SET IDENTITY_INSERT [dbo].[Features] OFF
 
 end
@@ -53,9 +55,9 @@ INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageU
 INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (12, N'1086 Blacks Ferry Rd, Pocahontas, AR 72455', CAST(125000 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/1086-Blacks-Ferry-Rd-Pocahontas-AR-72455/232066475_zpid/?utm_medium=referral', N'images/house12.jpg')
 INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (13, N'36961 State Highway 80, Danville, AR 72833', CAST(125000 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/36961-State-Highway-80-Danville-AR-72833/2087883454_zpid/?utm_medium=referral', N'images/house13.jpg')
 INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (14, N'6178 Hanover Rd, Mountain View, AR 72560', CAST(124900 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/6178-Hanover-Rd-Mountain-View-AR-72560/109125915_zpid/?utm_medium=referral', N'images/house14.jpg')
-INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (15, N'3476 Highway 115 N, Pocahontas, AR 72455', CAST(84900 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/3476-Highway-115-N-Pocahontas-AR-72455/2077762006_zpid/?utm_medium=referra', N'images/house14.jpg')
-INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (16, N'324 Cherryville Rd, Salem, MO 65560', CAST(108000 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/324-Cherryville-Rd-Salem-MO-65560/244192752_zpid/?utm_medium=referral', N'images/house14.jpg')
-INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (17, N'214 Parisi Ln, Booneville, AR 72927', CAST(119000 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/214-Parisi-Ln-Booneville-AR-72927/228750205_zpid/?utm_medium=referral', N'images/house14.jpg')
+INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (15, N'3476 Highway 115 N, Pocahontas, AR 72455', CAST(84900 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/3476-Highway-115-N-Pocahontas-AR-72455/2077762006_zpid/?utm_medium=referra', N'images/house15.jpg')
+INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (16, N'324 Cherryville Rd, Salem, MO 65560', CAST(108000 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/324-Cherryville-Rd-Salem-MO-65560/244192752_zpid/?utm_medium=referral', N'images/house16.jpg')
+INSERT [dbo].[HouseDetails] ([HouseID], [Address], [Price], [ZillowUrl], [ImageUrl]) VALUES (17, N'214 Parisi Ln, Booneville, AR 72927', CAST(119000 AS Decimal(18, 0)), N'https://www.zillow.com/homedetails/214-Parisi-Ln-Booneville-AR-72927/228750205_zpid/?utm_medium=referral', N'images/house17.jpg')
 SET IDENTITY_INSERT [dbo].[HouseDetails] OFF
 
 end
