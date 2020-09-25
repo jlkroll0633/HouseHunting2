@@ -3,6 +3,7 @@
     [Name]        NVARCHAR (50)  NOT NULL,
     [Description] NVARCHAR (MAX) NULL,
     [Weight]      INT            NULL,
+    [IsEditable] BIT NULL, 
     CONSTRAINT [PK_Features] PRIMARY KEY CLUSTERED ([FeatureID] ASC)
 );
 

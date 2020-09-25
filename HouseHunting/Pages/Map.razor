@@ -19,6 +19,7 @@
 
 
         <SfMaps ModelType="@typeof(IDataTemplate)">
+            <MapsEvents OnMarkerClick="@OnMarkerClick"></MapsEvents>
             <MapsTitleSettings Text="Saved Houses" />
             <MapsCenterPosition Latitude="35.323490" Longitude="-91.738187" />
             <MapsZoomSettings Enable="true" ShouldZoomInitially="true" MouseWheelZoom="true" EnablePanning="true" PinchZooming="true" />
@@ -59,6 +60,7 @@
 
 @code {
 
+    [Inject] public IJSRuntime JsRuntime { get; set; }
     string sql = string.Empty;
     string connString = string.Empty;
 
@@ -73,7 +75,7 @@
         sql = "spGetAllHouseDetails";
         try
         {
-            connString = _iconfig.GetConnectionString("defaultHome");
+            connString = _iconfig.GetConnectionString("defaultWork");
             mapMarkers = await _idao.Load<MarkerModel, dynamic>(new { }, connString, sql);
 
             foreach (MarkerModel marker in mapMarkers)
@@ -101,6 +103,19 @@
         }
     }
 
+    async Task OnMarkerClick(IMarkerClickEventArgs args)
+    {
+        try
+        {
+            MarkerModel marker = Newtonsoft.Json.JsonConvert.DeserializeObject<MarkerModel>(args.Data.ToString());
 
+            await JsRuntime.InvokeAsync<object>("open", marker.ZillowUrl, "_blank");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Cannot open url {Time}", DateTime.UtcNow);
+        }
+
+    }
 
 }

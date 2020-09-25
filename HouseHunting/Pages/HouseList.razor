@@ -28,18 +28,25 @@
                                   AllowEditing="true"
                                   Mode="EditMode.Normal">
                 </GridEditSettings>
+             
+
 
                 <GridTemplates>
-                    <DetailTemplate>
+                    <DetailTemplate >
 
                         @{
                             HouseObject house = (context as HouseObject);
                             var features = house.Features;
                             currentHouse = house;
+                            
+
                             <SfGrid DataSource="@features"
+                                    @ref ="DetailsGrid"
                                     TValue="FeatureObject"
                                     Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
-                                <GridEvents OnActionBegin="ActionDetailBeginAsync" TValue="FeatureObject">   </GridEvents>
+                                <GridEvents OnActionBegin="ActionDetailBeginAsync" 
+                                            OnBeginEdit="OnDetailBeginEdit"
+                                            TValue="FeatureObject">   </GridEvents>
                                 <GridEditSettings AllowAdding="true"
                                                   AllowDeleting="true"
                                                   AllowEditing="true"
@@ -48,15 +55,30 @@
                                 </GridEditSettings>
                                 <GridColumns>
 
-
                                     <GridColumn Field=@nameof(FeatureObject.Description)
+                                                
                                                 HeaderText="Feature"
                                                 Width="110"
+                                                
                                                 EditType="EditType.DropDownEdit">
-                                        <EditTemplate Context="editContext">
-                                            <SfDropDownList ID="Description" TValue="Int32" DataSource="FeaturesAll" TItem="FeatureObject"
-                                                            @bind-Value="((editContext as FeatureObject).FeatureID)">
+                                        <EditTemplate Context="editFeature">
+                                            <SfDropDownList ID="Description" TValue="string" DataSource="FeaturesAll" TItem="FeatureObject"
+                                                            @bind-Value="((editFeature as FeatureObject).Description)">
+                                                            
                                                 <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
+                                            </SfDropDownList>
+                                        </EditTemplate>
+
+                                    </GridColumn>
+                                    <GridColumn Field=@nameof(FeatureObject.Weight)
+                                                HeaderText="Weight"
+                                                Width="110"
+                                                
+                                                EditType="EditType.DropDownEdit">
+                                        <EditTemplate Context="editWeight">
+                                            <SfDropDownList ID="Weight" TValue="int" DataSource="Weights" TItem="int"
+                                                            @bind-Value="((editWeight as FeatureObject).Weight)">
+                                                <DropDownListFieldSettings Text="Weight" Value="FeatureID"></DropDownListFieldSettings>
                                             </SfDropDownList>
                                         </EditTemplate>
 
@@ -84,10 +106,10 @@
                                 ValidationRules="@(new ValidationRules { Required = true })"
                                 Width="150">
                         @*<EditTemplate>
-                                <SfAutoComplete TItem="OrdersDetails" TValue="string" ID="CustomerID" @bind-Value="@((context as OrdersDetails).CustomerID)" DataSource="@GridData">
-                                    <AutoCompleteFieldSettings Value="CustomerID"></AutoCompleteFieldSettings>
-                                </SfAutoComplete>
-                            </EditTemplate>*@
+                    <SfAutoComplete TItem="OrdersDetails" TValue="string" ID="CustomerID" @bind-Value="@((context as OrdersDetails).CustomerID)" DataSource="@GridData">
+                        <AutoCompleteFieldSettings Value="CustomerID"></AutoCompleteFieldSettings>
+                    </SfAutoComplete>
+                </EditTemplate>*@
                     </GridColumn>
                     <GridColumn Field=@nameof(HouseObject.Price)
                                 HeaderText="Price"
@@ -99,10 +121,10 @@
 
                     </GridColumn>
                     @*<GridColumn Field=@nameof(HouseObject.Features)
-                        HeaderText="Zillow"
-                        Width="160"
-                        Visible="false"
-                        EditType="EditType.DropDownEdit">*@
+            HeaderText="Zillow"
+            Width="160"
+            Visible="false"
+            EditType="EditType.DropDownEdit">*@
 
                     @*</GridColumn>*@
                     <GridColumn Field=@nameof(HouseObject.ZillowUrl)
@@ -125,20 +147,26 @@
     List<HouseObject> houseObjectList;
     List<FeatureObject> Features;
     List<FeatureObject> FeaturesAll;
+    List<int> Weights = new List<int>();
     string selectedFeature;
     HouseObject currentHouse;
     FeatureObject currentFeature;
     SfGrid<HouseObject> Grid;
+    SfGrid<FeatureObject> DetailsGrid;
     string sql = string.Empty;
     string connString;
 
 
     protected override async Task OnInitializedAsync()
     {
+        for(int i = 1; i<11; i++)
+        {
+            Weights.Add(i);
+        }
 
         try
         {
-            connString = _iconfig.GetConnectionString("defaultHome");
+            connString = _iconfig.GetConnectionString("defaultWork");
             sql = "spGetAllFeatures";
             FeaturesAll = await _idao.Load<FeatureObject, dynamic>(new { }, connString, sql);
 
@@ -152,6 +180,7 @@
 
                 house.Features.AddRange(Features);
                 house.Score = house.GetScore();
+
             }
         }
         catch (Exception ex)
@@ -233,6 +262,14 @@
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
+    }
+    public async Task OnDetailBeginEdit(BeginEditArgs<FeatureObject> args)
+    {
+        if(!args.RowData.IsEditable)
+        {
+            args.Cancel = true;
+            return;
+        }
     }
 
 }

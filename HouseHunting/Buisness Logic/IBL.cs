@@ -10,5 +10,7 @@ namespace HouseHunting
     public interface IBL
     {
         string GenerateStackTrace(Exception ex);
+        Task NavigateToUrlAsync(string url);
+        
     }
 }

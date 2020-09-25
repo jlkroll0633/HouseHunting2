@@ -164,7 +164,7 @@ else
         sql = "spGetAllHouseDetails";
         try
         {
-            connString = _iconfig.GetConnectionString("defaultHome");
+            connString = _iconfig.GetConnectionString("defaultWork");
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
 
 
@@ -180,6 +180,7 @@ else
                 house.Features.AddRange(Features);
                 house.Score = house.GetScore();
             }
+            houseObjectList = houseObjectList.OrderByDescending(s => s.Score).ToList();
 
         }
         catch (Exception ex)
@@ -195,6 +196,7 @@ else
     {
         try
         {
+           
             await JsRuntime.InvokeAsync<object>("open", url, "_blank");
         }
         catch (Exception ex)

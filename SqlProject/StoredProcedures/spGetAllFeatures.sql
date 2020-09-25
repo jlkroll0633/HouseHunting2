@@ -3,5 +3,5 @@
 AS
 Begin
 Set nocount on
-	select FeatureID, [Name], [Description] from Features
+	select FeatureID, [Name], [Description], [IsEditable] from Features
 end
