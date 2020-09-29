@@ -43,22 +43,23 @@
                             <SfGrid DataSource="@features"
                                     @ref ="DetailsGrid"
                                     TValue="FeatureObject"
-                                    Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
+                                    Toolbar="@(new List<string>() { "Edit", "Update", "Cancel" })">
                                 <GridEvents OnActionBegin="ActionDetailBeginAsync" 
                                             OnBeginEdit="OnDetailBeginEdit"
+                                            OnActionFailure="OnDetailActionFailure"
                                             TValue="FeatureObject">   </GridEvents>
-                                <GridEditSettings AllowAdding="true"
-                                                  AllowDeleting="true"
+                                <GridEditSettings AllowAdding="false"
+                                                  AllowDeleting="false"
                                                   AllowEditing="true"
                                                   Mode="EditMode.Normal">
 
                                 </GridEditSettings>
-                                <GridColumns>
+                                @*<GridColumns>
 
                                     <GridColumn Field=@nameof(FeatureObject.Description)
-                                                
+                                                AllowEditing="false"
                                                 HeaderText="Feature"
-                                                Width="110"
+                                                Width="110">
                                                 
                                                 EditType="EditType.DropDownEdit">
                                         <EditTemplate Context="editFeature">
@@ -72,19 +73,18 @@
                                     </GridColumn>
                                     <GridColumn Field=@nameof(FeatureObject.Weight)
                                                 HeaderText="Weight"
-                                                Width="110"
-                                                
-                                                EditType="EditType.DropDownEdit">
+                                                Width="110">
                                         <EditTemplate Context="editWeight">
+                                           
                                             <SfDropDownList ID="Weight" TValue="int" DataSource="Weights" TItem="int"
                                                             @bind-Value="((editWeight as FeatureObject).Weight)">
-                                                <DropDownListFieldSettings Text="Weight" Value="FeatureID"></DropDownListFieldSettings>
+                                                <DropDownListFieldSettings Text="Weight" Value="Weight"></DropDownListFieldSettings>
                                             </SfDropDownList>
                                         </EditTemplate>
 
                                     </GridColumn>
 
-                                </GridColumns>
+                                </GridColumns>*@
                             </SfGrid>
 
                         }
@@ -182,6 +182,7 @@
                 house.Score = house.GetScore();
 
             }
+
         }
         catch (Exception ex)
         {
@@ -241,13 +242,14 @@
             {
                 if (args.Action == "Edit")
                 {
-                    sql = "spUpdateHouseFeatures";
-                    result = await _idao.EditAsync<dynamic>(new { FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID, PreviousFeatureID = args.PreviousData.FeatureID }, connString, sql);
+
+                    sql = "spEditFeatureWeight";
+                    result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID}, connString, sql);
                 }
                 else if (args.Action == "Add")
                 {
                     sql = "spInsertNewHouse";
-                    result = await _idao.AddAsync<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = features.FeatureID }, connString, sql);
+                    result = await _idao.AddAsync<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = features.FeatureID, }, connString, sql);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
@@ -268,8 +270,16 @@
         if(!args.RowData.IsEditable)
         {
             args.Cancel = true;
+
             return;
         }
+
+
+    }
+    public void OnDetailActionFailure(FailureEventArgs args)
+    {
+        _logger.LogWarning("Warning in OnDetailActionFailure {Time}", DateTime.UtcNow);
+        // Here you can get the error details in the args
     }
 
 }

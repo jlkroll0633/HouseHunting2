@@ -4,7 +4,8 @@
 AS
 Begin
 Set nocount on 
-	select HouseFeatures.HouseID, Features.FeatureID, Name, Description, Weight, IsEditable from HouseFeatures 
-                        Left Join Features On HouseFeatures.FeatureID = Features.FeatureID 
+  select HF.HouseID AS HouseID, FEA.FeatureID AS FeatureID, FEA.Name, FEA.Description, FEA.IsEditable,
+  Case When HF.Weight is null Then FEA.Weight Else HF.Weight End As Weight from HouseFeatures AS HF
+                        Left Join Features AS FEA On HF.FeatureID = FEA.FeatureID 
 						where HouseID = @HouseID
 end
