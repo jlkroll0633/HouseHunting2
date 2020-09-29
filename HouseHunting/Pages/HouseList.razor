@@ -4,6 +4,7 @@
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Data
 @using Microsoft.Extensions.Logging
+@using HouseHunting.Data
 @inject ILogger<HouseList> _logger
 
 @inject INewHouseDAO _idao
@@ -15,130 +16,96 @@
 <div class="col-lg-12 control-section">
     <div class="content-wrapper">
         <div class="row">
-            <SfGrid DataSource="@houseObjectList"
-                    TValue="HouseObject"
-                    Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
-                    @ref="Grid"
-                    AllowPaging="true"
-                    AllowSorting="true">
-                <GridPageSettings PageSize="30"></GridPageSettings>
-                <GridEvents OnActionBegin="ActionBeginAsync" TValue="HouseObject">   </GridEvents>
-                <GridEditSettings AllowAdding="true"
-                                  AllowDeleting="true"
-                                  AllowEditing="true"
-                                  Mode="EditMode.Normal">
-                </GridEditSettings>
-             
+            @if (houseObjectList == null)
+            {
+                <p><em>Loading Houses...</em></p>
+            }
+            else
+            {
+                <SfGrid DataSource="@houseObjectList"
+                        TValue="HouseObject"
+                        SelectedRowIndex="0"
+                        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+                        @ref="Grid"
+                        AllowPaging="true"
+                        AllowSorting="true">
+                    <GridPageSettings PageSize="7"></GridPageSettings>
+                    <GridEvents OnActionBegin="ActionBeginAsync" TValue="HouseObject"
+                                RowSelected="OnRowSelected">   </GridEvents>
+                    <GridEditSettings AllowAdding="true"
+                                      AllowDeleting="true"
+                                      AllowEditing="true"
+                                      Mode="EditMode.Normal">
+                    </GridEditSettings>
 
+                    <GridColumns>
+                        <GridColumn Field=@nameof(HouseObject.HouseID)
+                                    HeaderText="House ID"
+                                    IsPrimaryKey="true"
+                                    IsIdentity="true"
+                                    ValidationRules="@(new ValidationRules { Required = true, Number = true })"
+                                    TextAlign="TextAlign.Right"
+                                    Width="140">
 
-                <GridTemplates>
-                    <DetailTemplate >
+                        </GridColumn>
+                        <GridColumn Field=@nameof(HouseObject.Address)
+                                    HeaderText="Address"
+                                    ValidationRules="@(new ValidationRules { Required = true })"
+                                    Width="150">
 
-                        @{
-                            HouseObject house = (context as HouseObject);
-                            var features = house.Features;
-                            currentHouse = house;
-                            
+                        </GridColumn>
+                        <GridColumn Field=@nameof(HouseObject.Price)
+                                    HeaderText="Price"
+                                    ValidationRules="@(new ValidationRules { Required = true })"
+                                    EditType="EditType.NumericEdit"
+                                    Format="C2"
+                                    TextAlign="TextAlign.Right"
+                                    Width="140">
 
-                            <SfGrid DataSource="@features"
-                                    @ref ="DetailsGrid"
-                                    TValue="FeatureObject"
-                                    Toolbar="@(new List<string>() { "Edit", "Update", "Cancel" })">
-                                <GridEvents OnActionBegin="ActionDetailBeginAsync" 
-                                            OnBeginEdit="OnDetailBeginEdit"
-                                            OnActionFailure="OnDetailActionFailure"
-                                            TValue="FeatureObject">   </GridEvents>
-                                <GridEditSettings AllowAdding="false"
-                                                  AllowDeleting="false"
-                                                  AllowEditing="true"
-                                                  Mode="EditMode.Normal">
+                        </GridColumn>
 
-                                </GridEditSettings>
-                                @*<GridColumns>
+                        <GridColumn Field=@nameof(HouseObject.ZillowUrl)
+                                    HeaderText="Zillow"
+                                    Width="160">
 
-                                    <GridColumn Field=@nameof(FeatureObject.Description)
-                                                AllowEditing="false"
-                                                HeaderText="Feature"
-                                                Width="110">
-                                                
-                                                EditType="EditType.DropDownEdit">
-                                        <EditTemplate Context="editFeature">
-                                            <SfDropDownList ID="Description" TValue="string" DataSource="FeaturesAll" TItem="FeatureObject"
-                                                            @bind-Value="((editFeature as FeatureObject).Description)">
-                                                            
-                                                <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
-                                            </SfDropDownList>
-                                        </EditTemplate>
+                        </GridColumn>
+                        <GridColumn Field=@nameof(HouseObject.ImageUrl)
+                                    HeaderText="Image Url"
+                                    Width="150">
 
-                                    </GridColumn>
-                                    <GridColumn Field=@nameof(FeatureObject.Weight)
-                                                HeaderText="Weight"
-                                                Width="110">
-                                        <EditTemplate Context="editWeight">
-                                           
-                                            <SfDropDownList ID="Weight" TValue="int" DataSource="Weights" TItem="int"
-                                                            @bind-Value="((editWeight as FeatureObject).Weight)">
-                                                <DropDownListFieldSettings Text="Weight" Value="Weight"></DropDownListFieldSettings>
-                                            </SfDropDownList>
-                                        </EditTemplate>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            }
 
-                                    </GridColumn>
+            @if (SelectedHouse == null)
+            {
+                <p><em>Loading Features...</em></p>
+            }
+            else
+            {
+                <SfGrid DataSource="@SelectedHouse.Features" 
+                        
+                        Toolbar="@(new List<string>() { "Edit", "Update", "Cancel" })">
+                    <GridEvents OnActionBegin="ActionDetailBeginAsync"
+                                OnBeginEdit="OnDetailBeginEdit"
+                                OnActionFailure="OnDetailActionFailure"
+                                TValue="FeatureObject">   </GridEvents>
+                    <GridEditSettings AllowAdding="false"
+                                      AllowDeleting="false"
+                                      AllowEditing="true"
+                                      Mode="EditMode.Normal">
+                    </GridEditSettings>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
+                                    AllowEditing="false"> </GridColumn>
+                        <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
+                                    EditType="EditType.NumericEdit"></GridColumn>
 
-                                </GridColumns>*@
-                            </SfGrid>
+                    </GridColumns>
+                </SfGrid>
+            }
 
-                        }
-                    </DetailTemplate>
-                </GridTemplates>
-
-                <GridColumns>
-                    <GridColumn Field=@nameof(HouseObject.HouseID)
-                                HeaderText="House ID"
-                                IsPrimaryKey="true"
-                                IsIdentity="true"
-                                ValidationRules="@(new ValidationRules { Required = true, Number = true })"
-                                TextAlign="TextAlign.Right"
-                                Width="140">
-
-                    </GridColumn>
-                    <GridColumn Field=@nameof(HouseObject.Address)
-                                HeaderText="Address"
-                                ValidationRules="@(new ValidationRules { Required = true })"
-                                Width="150">
-                        @*<EditTemplate>
-                    <SfAutoComplete TItem="OrdersDetails" TValue="string" ID="CustomerID" @bind-Value="@((context as OrdersDetails).CustomerID)" DataSource="@GridData">
-                        <AutoCompleteFieldSettings Value="CustomerID"></AutoCompleteFieldSettings>
-                    </SfAutoComplete>
-                </EditTemplate>*@
-                    </GridColumn>
-                    <GridColumn Field=@nameof(HouseObject.Price)
-                                HeaderText="Price"
-                                ValidationRules="@(new ValidationRules { Required = true })"
-                                EditType="EditType.NumericEdit"
-                                Format="C2"
-                                TextAlign="TextAlign.Right"
-                                Width="140">
-
-                    </GridColumn>
-                    @*<GridColumn Field=@nameof(HouseObject.Features)
-            HeaderText="Zillow"
-            Width="160"
-            Visible="false"
-            EditType="EditType.DropDownEdit">*@
-
-                    @*</GridColumn>*@
-                    <GridColumn Field=@nameof(HouseObject.ZillowUrl)
-                                HeaderText="Zillow"
-                                Width="160">
-
-                    </GridColumn>
-                    <GridColumn Field=@nameof(HouseObject.ImageUrl)
-                                HeaderText="Image Url"
-                                Width="150">
-
-                    </GridColumn>
-                </GridColumns>
-            </SfGrid>
         </div>
     </div>
 </div>
@@ -155,6 +122,9 @@
     SfGrid<FeatureObject> DetailsGrid;
     string sql = string.Empty;
     string connString;
+    public HouseObject SelectedHouse { get; set; }
+    public int? RowIndex { get; set; } = 1003;
+    List<HouseFeaturesGrid> houseFeatures;
 
 
     protected override async Task OnInitializedAsync()
@@ -169,7 +139,8 @@
             connString = _iconfig.GetConnectionString("defaultWork");
             sql = "spGetAllFeatures";
             FeaturesAll = await _idao.Load<FeatureObject, dynamic>(new { }, connString, sql);
-
+            sql = "spGetAllHouseFeatures";
+            houseFeatures = await _idao.Load<HouseFeaturesGrid, dynamic>(new { }, connString, sql);
             sql = "spGetAllHouseDetails";
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
 
@@ -244,12 +215,12 @@
                 {
 
                     sql = "spEditFeatureWeight";
-                    result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = currentHouse.HouseID}, connString, sql);
+                    result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID}, connString, sql);
                 }
                 else if (args.Action == "Add")
                 {
                     sql = "spInsertNewHouse";
-                    result = await _idao.AddAsync<dynamic>(new { HouseID = currentHouse.HouseID, FeatureID = features.FeatureID, }, connString, sql);
+                    result = await _idao.AddAsync<dynamic>(new { HouseID = SelectedHouse.HouseID, FeatureID = features.FeatureID, }, connString, sql);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
@@ -267,7 +238,7 @@
     }
     public async Task OnDetailBeginEdit(BeginEditArgs<FeatureObject> args)
     {
-        if(!args.RowData.IsEditable)
+        if (!args.RowData.IsEditable)
         {
             args.Cancel = true;
 
@@ -275,6 +246,11 @@
         }
 
 
+    }
+    public void OnRowSelected(RowSelectEventArgs<HouseObject> Args)
+    {
+        SelectedHouse = Args.Data;
+        RowIndex = Args.Data.HouseID;
     }
     public void OnDetailActionFailure(FailureEventArgs args)
     {

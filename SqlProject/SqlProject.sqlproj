@@ -148,6 +148,7 @@
     <Build Include="StoredProcedures\spGetMapMarkersByAddress.sql" />
     <Build Include="dbo\Tables\Locations.sql" />
     <Build Include="StoredProcedures\spEditFeatureWeight.sql" />
+    <Build Include="StoredProcedures\spGetAllHouseFeatures.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HousePublishSql.publish.xml" />
