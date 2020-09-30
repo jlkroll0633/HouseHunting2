@@ -29,10 +29,19 @@ else
                             @{
                                 string title = $"Score: {house.Score.ToString()}";
                                 string price = $"${house.Price.ToString()}";
+                                string houseID = $"ID: {house.HouseID.ToString()}";
                             }
                             <CardHeader Title="@title" SubTitle="@price" />
                             <CardContent>
                                 <table style="width: 100%">
+                                    <tr>
+                                        <td>
+                                            <div class="card-text-value">
+                                                <b>@houseID</b>
+                                            </div>
+                                        </td>
+                                        
+                                    </tr>
                                     @foreach (FeatureObject feature in house.Features)
                                     {
                                         <tr>
@@ -42,8 +51,8 @@ else
                                                 </div>
                                             </td>
                                             @*<td>
-                                                    <div class="card-text-value">@feature.Description</div>
-                                                </td>*@
+                    <div class="card-text-value">@feature.Description</div>
+                </td>*@
                                         </tr>
                                     }
 

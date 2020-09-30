@@ -89,7 +89,6 @@ namespace DataAccess
                     //throw new Exception($"Problem executing stored proc: {sql}", ex);
                 }
 
-
             }
         }
         public async Task<bool> EditAsync<T>(T parameters, string connString, string sql)
