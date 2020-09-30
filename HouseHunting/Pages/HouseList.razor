@@ -23,17 +23,19 @@
             else
             {
                 <SfGrid DataSource="@houseObjectList"
-                        
                         TValue="HouseObject"
                         SelectedRowIndex="0"
                         Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
                         @ref="Grid"
                         AllowPaging="true"
                         AllowSorting="true">
-                    <GridPageSettings PageSize="7"></GridPageSettings>
+                    <GridPageSettings PageSize="6"></GridPageSettings>
                     <GridEvents OnActionBegin="ActionBeginAsync" TValue="HouseObject"
                                 RowSelected="OnRowSelected"
-                                OnActionFailure="OnActionFailure">   </GridEvents>
+                                OnActionFailure="OnActionFailure"
+                                OnActionComplete="OnActionCompleteAsync">
+                                
+                    </GridEvents>
                     <GridEditSettings AllowAdding="true"
                                       AllowDeleting="true"
                                       AllowEditing="true"
@@ -41,13 +43,25 @@
                     </GridEditSettings>
 
                     <GridColumns>
+                        @*//grid won't update with this column :(*@
+                        @*<GridColumn HeaderText="Image" Width="40">
+                            <Template>
+                                @{
+                                    var house = (context as HouseObject);
+                                    <div class="image">
+                                        <img src="@house.ImageUrl" />
+                                    </div>
+
+                                }
+                            </Template>
+                        </GridColumn>*@
                         <GridColumn Field=@nameof(HouseObject.HouseID)
                                     HeaderText="House ID"
                                     IsPrimaryKey="true"
                                     IsIdentity="true"
                                     ValidationRules="@(new ValidationRules { Required = true, Number = true })"
-                                    TextAlign="TextAlign.Right"
-                                    Width="140">
+                                    TextAlign="TextAlign.Center"
+                                    Width="40">
 
                         </GridColumn>
                         <GridColumn Field=@nameof(HouseObject.Address)
@@ -61,8 +75,8 @@
                                     ValidationRules="@(new ValidationRules { Required = true })"
                                     EditType="EditType.NumericEdit"
                                     Format="C2"
-                                    TextAlign="TextAlign.Right"
-                                    Width="140">
+                                    TextAlign="TextAlign.Center"
+                                    Width="80">
 
                         </GridColumn>
 
@@ -73,8 +87,9 @@
                         </GridColumn>
                         <GridColumn Field=@nameof(HouseObject.ImageUrl)
                                     HeaderText="Image Url"
-                                    Width="150">
-
+                                    Width="75"
+                                    Visible="true">
+                            
                         </GridColumn>
                         <GridColumn Field=@nameof(HouseObject.IsActive)
                                     HeaderText="Is Active"
@@ -108,9 +123,12 @@
                             <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
                                         AllowEditing="false" EditType="EditType.DropDownEdit">
                                 <EditTemplate Context="editFeature">
+                                    @{ 
+                                        var feature = (editFeature as FeatureObject);
+                                        int index = SelectedHouse.Features.IndexOf(feature);
+                                    }
                                     <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
                                                     @bind-Value="@((editFeature as FeatureObject).FeatureID)">
-
                                         <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
                                     </SfDropDownList>
                                 </EditTemplate>
@@ -127,13 +145,21 @@
         </div>
     </div>
 </div>
+<style>
+    .image img {
+        height: 55px;
+        width: 55px;
+        border-radius: 50px;
+        box-shadow: inset 0 0 1px #e0e0e0, inset 0 0 14px rgba(0,0,0,0.2);
+    }
+</style>
 
 @code {
     List<HouseObject> houseObjectList;
     List<FeatureObject> Features;
     List<FeatureObject> FeaturesAll;
     List<int> Weights = new List<int>();
-   
+
     HouseObject currentHouse;
     FeatureObject currentFeature;
     SfGrid<HouseObject> Grid;
@@ -141,14 +167,14 @@
     string sql = string.Empty;
     string connString;
     HouseObject SelectedHouse;
-    int RowIndex; 
+    int RowIndex;
 
     List<HouseFeaturesGrid> houseFeatures;
 
 
     protected override async Task OnInitializedAsync()
     {
-        for(int i = 1; i<11; i++)
+        for (int i = 1; i < 11; i++)
         {
             Weights.Add(i);
         }
@@ -190,17 +216,22 @@
         HouseObject house = args.Data;
         try
         {
+            //if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
+            //{
+            //    await Grid.ShowColumns("Image Url");
+            //}
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
                 if (args.Action == "Edit")
                 {
+
                     sql = "spUpdateHouseDetails";
                     bool isEdit = await _idao.EditAsync<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID, IsActive = house.IsActive }, connString, sql);
 
                 }
                 else if (args.Action == "Add")
                 {
-                    int newId = await _idao.AddHouseAsync<HouseObject>(house.Address, house.Price, house.ZillowUrl, house.ImageUrl, connString);
+                    int newId = await _idao.AddHouseAsync<HouseObject>(house.Address, house.Price, house.ZillowUrl, house.ImageUrl, connString, house.IsActive);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
@@ -208,16 +239,14 @@
                 //TODO make this SP
                 bool isDeleted = await _idao.DeleteHouseAsync<dynamic>(new { HouseID = house.HouseID }, connString);
             }
-            else if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
-            {
 
-            }
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Warning in ActionBeginAsync {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
+
 
     }
     public async Task OnActionDetailBeginAsync(ActionEventArgs<FeatureObject> args)
@@ -233,7 +262,7 @@
                 {
 
                     sql = "spEditFeatureWeight";
-                    result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID}, connString, sql);
+                    result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
                 }
                 else if (args.Action == "Add")
                 {
@@ -279,6 +308,13 @@
     {
         _logger.LogWarning("Warning in OnDetailActionFailure {Time}", DateTime.UtcNow);
         // Here you can get the error details in the args
+    }
+    public async void OnActionCompleteAsync(ActionEventArgs<HouseObject> Args)
+    {
+        //if (Args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || Args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
+        //{
+        //    await Grid.HideColumns("Image Url");
+        //}
     }
 
 }

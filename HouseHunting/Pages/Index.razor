@@ -40,7 +40,7 @@ else
                                                 <b>@houseID</b>
                                             </div>
                                         </td>
-                                        
+
                                     </tr>
                                     @foreach (FeatureObject feature in house.Features)
                                     {
@@ -50,11 +50,10 @@ else
                                                     <b>@feature.Description</b>
                                                 </div>
                                             </td>
-                                            @*<td>
-                    <div class="card-text-value">@feature.Description</div>
-                </td>*@
+
                                         </tr>
                                     }
+                                    
 
                                 </table>
                             </CardContent>
@@ -152,6 +151,7 @@ else
     .e-card .e-card-content {
         padding-top: 0px;
         height: 110px;
+        font-size: 10px;
     }
 
     .col-lg-3 .col-md-3 .col-sm-6 {
@@ -162,7 +162,6 @@ else
 @code {
 
     [Inject] public IJSRuntime JsRuntime { get; set; }
-
     List<HouseObject> houseObjectList;
     List<HouseObject> activeHouseObjectList;
     List<FeatureObject> Features;
@@ -216,4 +215,5 @@ else
         }
 
     }
+    
 }
