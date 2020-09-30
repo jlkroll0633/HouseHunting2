@@ -7,7 +7,8 @@ namespace DataAccess
     {
         Task<bool> AddAsync<T>(T parameters, string connString, string sql);
        
-        Task<int> AddHouseAsync<T>(string address, decimal price, string zillow, string image, string connString);
+
+        Task<int> AddHouseAsync<T>(string address, decimal price, string zillow, string image, string connString, bool isActive);
         Task<bool> DeleteAsync<T>(T parameters, string connString, string sql);
         Task<bool> DeleteHouseAsync<T>(T parameters, string connString);
        

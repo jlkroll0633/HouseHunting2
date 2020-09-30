@@ -23,6 +23,7 @@
             else
             {
                 <SfGrid DataSource="@houseObjectList"
+                        
                         TValue="HouseObject"
                         SelectedRowIndex="0"
                         Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
@@ -73,6 +74,12 @@
                         <GridColumn Field=@nameof(HouseObject.ImageUrl)
                                     HeaderText="Image Url"
                                     Width="150">
+
+                        </GridColumn>
+                        <GridColumn Field=@nameof(HouseObject.IsActive)
+                                    HeaderText="Is Active"
+                                    DisplayAsCheckBox="true"
+                                    Width="50">
 
                         </GridColumn>
                     </GridColumns>
@@ -188,7 +195,7 @@
                 if (args.Action == "Edit")
                 {
                     sql = "spUpdateHouseDetails";
-                    bool isEdit = await _idao.EditAsync<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID }, connString, sql);
+                    bool isEdit = await _idao.EditAsync<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID, IsActive = house.IsActive }, connString, sql);
 
                 }
                 else if (args.Action == "Add")

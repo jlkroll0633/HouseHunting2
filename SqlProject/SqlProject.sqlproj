@@ -149,6 +149,7 @@
     <Build Include="dbo\Tables\Locations.sql" />
     <Build Include="StoredProcedures\spEditFeatureWeight.sql" />
     <Build Include="StoredProcedures\spGetAllHouseFeatures.sql" />
+    <Build Include="StoredProcedures\spGetAllActiveHouseDetails.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HousePublishSql.publish.xml" />

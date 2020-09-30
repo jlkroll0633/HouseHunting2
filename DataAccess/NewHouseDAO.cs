@@ -40,10 +40,10 @@ namespace DataAccess
             throw new Exception("TEST");
         }
 
-        public async Task<int> AddHouseAsync<T>(string address, decimal price, string zillow, string image, string connString)
+        public async Task<int> AddHouseAsync<T>(string address, decimal price, string zillow, string image, string connString, bool isActive)
         {
-            string sql = $@"Insert into HouseDetails (Address, Price, ZillowUrl, ImageUrl) 
-                        values (@Address, @Price, @ZillowUrl, @ImageUrl)
+            string sql = $@"Insert into HouseDetails (Address, Price, ZillowUrl, ImageUrl, IsActive) 
+                        values (@Address, @Price, @ZillowUrl, @ImageUrl, @IsActive)
                         select @HouseID = @@IDENTITY";
             var p = new DynamicParameters();
             p.Add("@HouseID", 0, DbType.Int32, ParameterDirection.Output);
@@ -51,6 +51,7 @@ namespace DataAccess
             p.Add("@Price", price);
             p.Add("@ZillowUrl", zillow);
             p.Add("@ImageUrl", image);
+            p.Add("@IsActive", isActive);
 
             using (IDbConnection connection = new SqlConnection(connString))
             {

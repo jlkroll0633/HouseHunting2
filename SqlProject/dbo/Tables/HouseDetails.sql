@@ -4,6 +4,7 @@
     [Price]     DECIMAL (18)   NOT NULL,
     [ZillowUrl] NVARCHAR (MAX) NULL,
     [ImageUrl]  NVARCHAR (MAX) NULL,
+    [IsActive] BIT NULL, 
     CONSTRAINT [PK_Houses] PRIMARY KEY CLUSTERED ([HouseID] ASC)
 );
 

@@ -18,6 +18,7 @@ namespace DataAccess
         public double Score { get; set; }
 
         public string ZillowUrl { get; set; }
+        public bool IsActive { get; set; }
         public string ImageUrl { get; set; }
 
         public double GetScore()

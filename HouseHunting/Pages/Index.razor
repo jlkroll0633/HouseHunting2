@@ -164,17 +164,19 @@ else
     [Inject] public IJSRuntime JsRuntime { get; set; }
 
     List<HouseObject> houseObjectList;
+    List<HouseObject> activeHouseObjectList;
     List<FeatureObject> Features;
     string connString;
     string sql = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        sql = "spGetAllHouseDetails";
+        sql = "spGetAllActiveHouseDetails";
         try
         {
             connString = _iconfig.GetConnectionString("defaultWork");
             houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
+            //Filter all active listings
 
 
 
@@ -190,7 +192,6 @@ else
                 house.Score = house.GetScore();
             }
             houseObjectList = houseObjectList.OrderByDescending(s => s.Score).ToList();
-
         }
         catch (Exception ex)
         {
@@ -205,7 +206,7 @@ else
     {
         try
         {
-           
+
             await JsRuntime.InvokeAsync<object>("open", url, "_blank");
         }
         catch (Exception ex)

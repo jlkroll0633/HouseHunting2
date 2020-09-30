@@ -1,6 +1,5 @@
-﻿CREATE PROCEDURE [dbo].[spGetAllHouseDetails]
-	
-AS
+﻿CREATE PROCEDURE [dbo].[spGetAllActiveHouseDetails]
+	AS
 Begin
 Set nocount on 
  Select [HouseID]
@@ -10,4 +9,5 @@ Set nocount on
       ,[ImageUrl]
       ,[IsActive]
   FROM [Houses].[dbo].[HouseDetails]
+  Where [IsActive] = 1
 End
