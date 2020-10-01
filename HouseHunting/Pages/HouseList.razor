@@ -105,7 +105,9 @@
                 }
                 else
                 {
-
+        <div class="image">
+            <img src="@SelectedHouse.ImageUrl" />
+        </div>
         <SfGrid DataSource="@SelectedHouse.Features"
                 @ref="DetailsGrid"
                 Toolbar="@(new List<string>() {"Add","Edit","Delete","Update", "Cancel" })">
@@ -122,7 +124,11 @@
 
             
             <GridColumns>
-                
+                <GridColumn Field=@nameof(FeatureObject.FeatureID) HeaderText="ID" Width="75"
+                            IsPrimaryKey="true"
+                            AllowEditing="false">
+
+                </GridColumn>
                 <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
                             AllowEditing="false" EditType="EditType.DropDownEdit"
                             IsPrimaryKey="true">
@@ -132,6 +138,10 @@
                             var feature = (editFeature as FeatureObject);
                             int index = SelectedHouse.Features.IndexOf(feature);
                         }
+                        @*<SfAutoComplete DataSource="@SelectedHouse.Features" TItem="FeatureObject" TValue="string">
+                            <AutoCompleteFieldSettings Value="FeatureID">
+                            </AutoCompleteFieldSettings>
+                        </SfAutoComplete>*@
                         <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
                                         @bind-Value="@((editFeature as FeatureObject).FeatureID)">
 
@@ -140,7 +150,9 @@
                     </EditTemplate>
                 </GridColumn>
                 <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
-                            EditType="EditType.NumericEdit"></GridColumn>
+                            EditType="EditType.NumericEdit">
+
+                </GridColumn>
 
             </GridColumns>
         </SfGrid>
@@ -155,7 +167,7 @@
     .image img {
         height: 55px;
         width: 55px;
-        border-radius: 50px;
+        border-radius: 5px 20px 5px;
         box-shadow: inset 0 0 1px #e0e0e0, inset 0 0 14px rgba(0,0,0,0.2);
     }
 </style>
