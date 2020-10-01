@@ -10,7 +10,7 @@ namespace HouseHunting
 {
     public interface IBL
     {
-        Task<bool> AddHouseFeature(FeatureObject newFeature, int HouseID, string connString);
+        
         string GenerateStackTrace(Exception ex);
         Task NavigateToUrlAsync(string url);
         

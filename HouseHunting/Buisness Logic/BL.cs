@@ -38,28 +38,7 @@ namespace HouseHunting.Buisness_Logic
             
 
         }
-        public async Task<bool> AddHouseFeature(FeatureObject newFeature, int houseID, string connString)
-        {
-            ////bool result;
-            ////string sql = "spGetFeatureWeight";
-            //////TODO make another signiture for one item?
-            ////List<int> weight = await newHouseDAO.Load<int,dynamic>(new { }, connString, sql);
-            ////sql = "spInsertNewHouseFeature";
-            //////if user entered weight matches whats in the features table, do not oerride default weight
-            //////if (weight[0] == newFeature.Weight)
-            //////{
-            //////    result = await newHouseDAO.EditAsync<dynamic>(new { Weight = newFeature.Weight, FeatureID = newFeature.FeatureID, HouseID = houseID }, connString, sql);
-            //////}
-            //////else
-            //////{
-            //////    result = await newHouseDAO.EditAsync<dynamic>(new { FeatureID = newFeature.FeatureID, HouseID = houseID }, connString, sql);
-            //////}
-
-            
-           
-           
-            return true;
-        }
+       
 
     }
 }
