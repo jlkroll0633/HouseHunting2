@@ -2,13 +2,18 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using DataAccess;
+using System.Collections.Generic;
 
 namespace HouseHunting.Buisness_Logic
 {
     public class BL : IBL
     {
         //public IJSRuntime JsRuntime;
-        [Inject] public IJSRuntime JsRuntime { get; set; }
+        //[Inject] public IJSRuntime JsRuntime { get; set; }
+
+        IJSRuntime JsRuntime;
+        INewHouseDAO newHouseDAO;
         public string GenerateStackTrace(Exception ex)
         {
             var inner = ex.InnerException;
@@ -32,6 +37,28 @@ namespace HouseHunting.Buisness_Logic
                 //string stackTrace = _ibl.GenerateStackTrace(ex);
             
 
+        }
+        public async Task<bool> AddHouseFeature(FeatureObject newFeature, int houseID, string connString)
+        {
+            ////bool result;
+            ////string sql = "spGetFeatureWeight";
+            //////TODO make another signiture for one item?
+            ////List<int> weight = await newHouseDAO.Load<int,dynamic>(new { }, connString, sql);
+            ////sql = "spInsertNewHouseFeature";
+            //////if user entered weight matches whats in the features table, do not oerride default weight
+            //////if (weight[0] == newFeature.Weight)
+            //////{
+            //////    result = await newHouseDAO.EditAsync<dynamic>(new { Weight = newFeature.Weight, FeatureID = newFeature.FeatureID, HouseID = houseID }, connString, sql);
+            //////}
+            //////else
+            //////{
+            //////    result = await newHouseDAO.EditAsync<dynamic>(new { FeatureID = newFeature.FeatureID, HouseID = houseID }, connString, sql);
+            //////}
+
+            
+           
+           
+            return true;
         }
 
     }

@@ -106,39 +106,44 @@
                 else
                 {
 
-                    <SfGrid DataSource="@SelectedHouse.Features"
-                            @ref="DetailsGrid"
-                            Toolbar="@(new List<string>() {"Add","Edit","Delete","Update", "Cancel" })">
-                        <GridEvents OnActionBegin="OnActionDetailBeginAsync"
-                                    OnBeginEdit="OnDetailBeginEditAsync"
-                                    OnActionFailure="OnDetailActionFailure"
-                                    TValue="FeatureObject">   </GridEvents>
-                        <GridEditSettings AllowAdding="true"
-                                          AllowDeleting="true"
-                                          AllowEditing="true"
-                                          Mode="EditMode.Normal">
-                        </GridEditSettings>
+        <SfGrid DataSource="@SelectedHouse.Features"
+                @ref="DetailsGrid"
+                Toolbar="@(new List<string>() {"Add","Edit","Delete","Update", "Cancel" })">
+            <GridEvents OnActionBegin="OnActionDetailBeginAsync"
+                        OnBeginEdit="OnDetailBeginEditAsync"
+                        OnActionFailure="OnDetailActionFailure"
+                        TValue="FeatureObject">   </GridEvents>
+            <GridEditSettings AllowAdding="true"
+                              AllowDeleting="true"
+                              AllowEditing="true"
+                              Mode="EditMode.Normal">
+            </GridEditSettings>
+            
 
-                        <GridColumns>
-                            <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
-                                        AllowEditing="false" EditType="EditType.DropDownEdit"
-                                        IsPrimaryKey="true">
-                                <EditTemplate Context="editFeature">
-                                    @{ 
-                                        var feature = (editFeature as FeatureObject);
-                                        int index = SelectedHouse.Features.IndexOf(feature);
-                                    }
-                                    <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
-                                                    @bind-Value="@((editFeature as FeatureObject).FeatureID)">
-                                        <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
-                                    </SfDropDownList>
-                                </EditTemplate>
-                            </GridColumn>
-                            <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
-                                        EditType="EditType.NumericEdit"></GridColumn>
+            
+            <GridColumns>
+                
+                <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
+                            AllowEditing="false" EditType="EditType.DropDownEdit"
+                            IsPrimaryKey="true">
 
-                        </GridColumns>
-                    </SfGrid>
+                    <EditTemplate Context="editFeature">
+                        @{
+                            var feature = (editFeature as FeatureObject);
+                            int index = SelectedHouse.Features.IndexOf(feature);
+                        }
+                        <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
+                                        @bind-Value="@((editFeature as FeatureObject).FeatureID)">
+
+                            <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </EditTemplate>
+                </GridColumn>
+                <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
+                            EditType="EditType.NumericEdit"></GridColumn>
+
+            </GridColumns>
+        </SfGrid>
                 }
             }
 
@@ -164,6 +169,7 @@
     HouseObject currentHouse;
     FeatureObject currentFeature;
     SfGrid<HouseObject> Grid;
+
     SfGrid<FeatureObject> DetailsGrid;
     string sql = string.Empty;
     string connString;
@@ -232,6 +238,7 @@
                 }
                 else if (args.Action == "Add")
                 {
+
                     int newId = await _idao.AddHouseAsync<HouseObject>(house.Address, house.Price, house.ZillowUrl, house.ImageUrl, connString, house.IsActive);
                 }
             }
@@ -259,16 +266,49 @@
         {
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
+                sql = "spGetFeatureByFeatureID";
+                List<FeatureObject> sqlFeatures = await _idao.Load<FeatureObject, dynamic>(new { FeatureID = features.FeatureID }, connString, sql);
+                FeatureObject sqlFeature = sqlFeatures[0];
+
                 if (args.Action == "Edit")
                 {
-
+                    //result = await _ibl.EditHouseFeature(features, SelectedHouse.HouseID, connString);
                     sql = "spEditFeatureWeight";
-                    result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
+
+                    if(sqlFeature.IsEditable)
+                    {
+                        if (sqlFeature.Weight == features.Weight)
+                        {
+                            result = await _idao.EditAsync<dynamic>(new { Weight = (string)null, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
+                        }
+                        else
+                        {
+                            result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
+                        }
+                    }
+                    else
+                    {
+                        result = await _idao.EditAsync<dynamic>(new { Weight = (string)null, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
+                    }
+
                 }
                 else if (args.Action == "Add")
                 {
+
+
                     sql = "spInsertNewHouseFeature";
-                    result = await _idao.AddAsync<dynamic>(new { HouseID = SelectedHouse.HouseID, FeatureID = args.Data.FeatureID, Weight = args.Data.Weight }, connString, sql);
+                    if (sqlFeature.IsEditable)
+                    {
+                        result = await _idao.AddAsync<dynamic>(new { HouseID = SelectedHouse.HouseID, FeatureID = args.Data.FeatureID, Weight = args.Data.Weight }, connString, sql);
+
+
+
+                    }
+                    else
+                    {
+                        result = await _idao.AddAsync<dynamic>(new { HouseID = SelectedHouse.HouseID, FeatureID = args.Data.FeatureID, Weight = (string)null }, connString, sql);
+                    }
+
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)

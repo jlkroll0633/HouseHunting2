@@ -15,10 +15,11 @@ namespace DataAccess
         Task<bool> EditAsync<T>(T parameters, string connString, string sql);
         Task<bool> EditHouseFeaturesAsync<T>(T parameters, string connString, string sql);
         Task<List<T>> Load<T, U>(U parameters, string connString, string sql);
+        
         //Task<List<T>> LoadFeatures<T, U>(U parameters, string connString);
         //Task<List<T>> LoadFeaturesByHouse<T, U>(U parameters, string connString);
         //Task<List<T>> LoadHouseData<T, U>(U parameters, string connString);
-       
+
         //Task UpdateHouse<T>(T parameters, string connString);
     }
 }
