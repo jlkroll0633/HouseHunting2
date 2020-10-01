@@ -105,8 +105,10 @@
                 }
                 else
                 {
-        <div class="image">
+        <div class="image" >
             <img src="@SelectedHouse.ImageUrl" />
+            <b class="imageText">@SelectedHouse.Score.ToString()</b>
+
         </div>
         <SfGrid DataSource="@SelectedHouse.Features"
                 @ref="DetailsGrid"
@@ -127,11 +129,12 @@
                 <GridColumn Field=@nameof(FeatureObject.FeatureID) HeaderText="ID" Width="75"
                             IsPrimaryKey="true"
                             AllowEditing="false">
+                            
 
                 </GridColumn>
                 <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
-                            AllowEditing="false" EditType="EditType.DropDownEdit"
-                            IsPrimaryKey="true">
+                            AllowEditing="false" EditType="EditType.DropDownEdit">
+                            
 
                     <EditTemplate Context="editFeature">
                         @{
@@ -169,7 +172,19 @@
         width: 55px;
         border-radius: 5px 20px 5px;
         box-shadow: inset 0 0 1px #e0e0e0, inset 0 0 14px rgba(0,0,0,0.2);
+        float: left;
+       
     }
+    .imageText {
+        padding-left: 20px;
+        float: right;
+        font-size: x-large;
+        color: maroon;
+    }
+    
+   
+
+    
 </style>
 
 @code {
