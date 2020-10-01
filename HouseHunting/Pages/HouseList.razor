@@ -121,7 +121,8 @@
 
                         <GridColumns>
                             <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
-                                        AllowEditing="false" EditType="EditType.DropDownEdit">
+                                        AllowEditing="false" EditType="EditType.DropDownEdit"
+                                        IsPrimaryKey="true">
                                 <EditTemplate Context="editFeature">
                                     @{ 
                                         var feature = (editFeature as FeatureObject);
