@@ -1,4 +1,7 @@
 ﻿@page "/houselist"
+@page "/houselist/{id:int}"
+
+
 @using  Microsoft.Extensions.Configuration
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.DropDowns
@@ -24,17 +27,22 @@
             {
                 <SfGrid DataSource="@houseObjectList"
                         TValue="HouseObject"
-                        SelectedRowIndex="0"
+                        SelectedRowIndex="@selectedRow"
                         Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
                         @ref="Grid"
-                        AllowPaging="true"
-                        AllowSorting="true">
-                    <GridPageSettings PageSize="6"></GridPageSettings>
+                        AllowPaging="false"
+                        AllowSorting="true"
+                        AllowSelection="true"
+                        >
+                       
+                    @*<GridPageSettings PageSize="6"></GridPageSettings>*@
                     <GridEvents OnActionBegin="ActionBeginAsync" TValue="HouseObject"
                                 RowSelected="OnRowSelected"
                                 OnActionFailure="OnActionFailure"
-                                OnActionComplete="OnActionCompleteAsync">
+                                OnActionComplete="OnActionCompleteAsync"
+                                OnDataBound="DataHandlerAsync">
                                 
+
                     </GridEvents>
                     <GridEditSettings AllowAdding="true"
                                       AllowDeleting="true"
@@ -45,16 +53,16 @@
                     <GridColumns>
                         @*//grid won't update with this column :(*@
                         @*<GridColumn HeaderText="Image" Width="40">
-                            <Template>
-                                @{
-                                    var house = (context as HouseObject);
-                                    <div class="image">
-                                        <img src="@house.ImageUrl" />
-                                    </div>
+                        <Template>
+                            @{
+                                var house = (context as HouseObject);
+                                <div class="image">
+                                    <img src="@house.ImageUrl" />
+                                </div>
 
-                                }
-                            </Template>
-                        </GridColumn>*@
+                            }
+                        </Template>
+                    </GridColumn>*@
                         <GridColumn Field=@nameof(HouseObject.HouseID)
                                     HeaderText="House ID"
                                     IsPrimaryKey="true"
@@ -89,7 +97,7 @@
                                     HeaderText="Image Url"
                                     Width="75"
                                     Visible="true">
-                            
+
                         </GridColumn>
                         <GridColumn Field=@nameof(HouseObject.IsActive)
                                     HeaderText="Is Active"
@@ -105,61 +113,62 @@
                 }
                 else
                 {
-        <div class="image" >
-            <img src="@SelectedHouse.ImageUrl" />
-            <b class="imageText">@SelectedHouse.Score.ToString()</b>
+                    <div class="image">
+                        <img src="@SelectedHouse.ImageUrl" />
+                        <b class="imageText">@SelectedHouse.Score.ToString()</b>
 
-        </div>
-        <SfGrid DataSource="@SelectedHouse.Features"
-                @ref="DetailsGrid"
-                Toolbar="@(new List<string>() {"Add","Edit","Delete","Update", "Cancel" })">
-            <GridEvents OnActionBegin="OnActionDetailBeginAsync"
-                        OnBeginEdit="OnDetailBeginEditAsync"
-                        OnActionFailure="OnDetailActionFailure"
-                        TValue="FeatureObject">   </GridEvents>
-            <GridEditSettings AllowAdding="true"
-                              AllowDeleting="true"
-                              AllowEditing="true"
-                              Mode="EditMode.Normal">
-            </GridEditSettings>
-            
+                    </div>
+                    <SfGrid DataSource="@SelectedHouse.Features"
+                            @ref="DetailsGrid"
+                            Toolbar="@(new List<string>() {"Add","Edit","Delete","Update", "Cancel" })">
+                        <GridEvents OnActionBegin="OnActionDetailBeginAsync"
+                                    OnBeginEdit="OnDetailBeginEditAsync"
+                                    OnActionFailure="OnDetailActionFailure"
+                                    TValue="FeatureObject">   </GridEvents>
+                        <GridEditSettings AllowAdding="true"
+                                          AllowDeleting="true"
+                                          AllowEditing="true"
+                                          Mode="EditMode.Normal">
+                        </GridEditSettings>
 
-            
-            <GridColumns>
-                <GridColumn Field=@nameof(FeatureObject.FeatureID) HeaderText="ID" Width="75"
-                            IsPrimaryKey="true"
-                            AllowEditing="false">
-                            
 
-                </GridColumn>
-                <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
-                            AllowEditing="false" EditType="EditType.DropDownEdit">
-                            
 
-                    <EditTemplate Context="editFeature">
-                        @{
-                            var feature = (editFeature as FeatureObject);
-                            int index = SelectedHouse.Features.IndexOf(feature);
-                        }
-                        @*<SfAutoComplete DataSource="@SelectedHouse.Features" TItem="FeatureObject" TValue="string">
-                            <AutoCompleteFieldSettings Value="FeatureID">
-                            </AutoCompleteFieldSettings>
-                        </SfAutoComplete>*@
-                        <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
-                                        @bind-Value="@((editFeature as FeatureObject).FeatureID)">
+                        <GridColumns>
+                            <GridColumn Field=@nameof(FeatureObject.FeatureID) HeaderText="ID" Width="75"
+                                        IsPrimaryKey="true"
+                                        AllowEditing="false">
 
-                            <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
-                        </SfDropDownList>
-                    </EditTemplate>
-                </GridColumn>
-                <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
-                            EditType="EditType.NumericEdit">
 
-                </GridColumn>
+                            </GridColumn>
+                            <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
+                                        AllowEditing="false" EditType="EditType.DropDownEdit">
 
-            </GridColumns>
-        </SfGrid>
+
+                                <EditTemplate Context="editFeature">
+                                    @{
+                                        var feature = (editFeature as FeatureObject);
+                                        int index = SelectedHouse.Features.IndexOf(feature);
+                                    }
+                                    @*<SfAutoComplete DataSource="@SelectedHouse.Features" TItem="FeatureObject" TValue="string">
+                                    <AutoCompleteFieldSettings Value="FeatureID">
+                                    </AutoCompleteFieldSettings>
+                                </SfAutoComplete>*@
+                                    <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
+                                                    @bind-Value="@((editFeature as FeatureObject).FeatureID)">
+
+                                        <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
+                                    </SfDropDownList>
+                                </EditTemplate>
+                            </GridColumn>
+                            <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
+                                        EditType="EditType.NumericEdit">
+
+                            </GridColumn>
+
+                        </GridColumns>
+                    </SfGrid>
                 }
+
             }
 
 
@@ -188,6 +197,12 @@
 </style>
 
 @code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    int selectedRow = 0;
+    bool but = true;
     List<HouseObject> houseObjectList;
     List<FeatureObject> Features;
     List<FeatureObject> FeaturesAll;
@@ -205,14 +220,13 @@
 
     List<HouseFeaturesGrid> houseFeatures;
 
+    protected override void OnParametersSet()
+    {
+
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        for (int i = 1; i < 11; i++)
-        {
-            Weights.Add(i);
-        }
-
         try
         {
             connString = _iconfig.GetConnectionString("defaultWork");
@@ -233,13 +247,20 @@
 
             }
 
+
+            SelectedHouse = houseObjectList.Find(h => h.HouseID == Id);
+            selectedRow = houseObjectList.IndexOf(SelectedHouse);
+
+            //need to trigger On row select, I think?
+
+
+
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Warning in initialize house list page {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
-
 
 
 
@@ -364,6 +385,7 @@
     {
         SelectedHouse = Args.Data;
         RowIndex = Args.Data.HouseID;
+
     }
     public void OnDetailActionFailure(FailureEventArgs args)
     {
@@ -382,5 +404,46 @@
         //    await Grid.HideColumns("Image Url");
         //}
     }
+    public bool ContinuePaging = true;
+    public bool InitialRender { get; set; }
+    //public int Value = 1015; // consider that value your querystring contains 
+    public List<HouseObject> houseObj { get; set; }
 
+
+    public async Task DataHandlerAsync()
+    {
+        try
+        {
+            //if (InitialRender) // to handled during the initial rendering of Grid 
+            //{
+            //    InitialRender = false;
+
+            //    //int pgCt = Grid.PageSettings.PageCount;
+            //    //int pgSz = Grid.PageSettings.PageSize;
+            //    //int housePosition = houseObjectList.IndexOf(SelectedHouse) + 1;
+            //    //int cnt = 1;
+            //    //decimal dec = housePosition / pgSz;
+            //    //decimal page = Math.Ceiling(dec);
+            //    //int remainder;
+            //    //Math.DivRem(housePosition,pgSz, out remainder);
+
+            //    //await Grid.GoToPage(3);
+            //    await Grid.SelectRow(selectedRow);
+
+
+            //}
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Warning in DataHandler {Time}. {stackTrace}. {ex.message}", DateTime.UtcNow, ex.StackTrace, ex.Message);
+        }
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            InitialRender = true;
+        }
+    }
 }

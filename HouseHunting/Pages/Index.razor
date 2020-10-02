@@ -8,6 +8,7 @@
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 @inject IBL _ibl
+@inject Microsoft.AspNetCore.Components.NavigationManager _navigationManager
 
 @if (houseObjectList == null)
 {
@@ -24,7 +25,10 @@ else
             {
                 <div class="col-lg-3 col-md-3 col-sm-6">
                     <div id="card_sample_11" class="card_sample">
-                        <SfCard ID="@house.HouseID.ToString()">
+                        <SfCard ID="@house.HouseID.ToString()"
+                                @onclick="@(e => OnCardClickAsync(house.HouseID))"
+                                @ref="Card">
+
                             <CardImage Image="@house.ImageUrl" />
                             @{
                                 string title = $"Score: {house.Score.ToString()}";
@@ -53,7 +57,7 @@ else
 
                                         </tr>
                                     }
-                                    
+
 
                                 </table>
                             </CardContent>
@@ -167,6 +171,7 @@ else
     List<FeatureObject> Features;
     string connString;
     string sql = string.Empty;
+    SfCard Card;
 
     protected override async Task OnInitializedAsync()
     {
@@ -215,5 +220,19 @@ else
         }
 
     }
-    
+    public async Task OnCardClickAsync(int id)
+    {
+        try
+        {
+            _navigationManager.NavigateTo($"/houselist/{id}");
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Warning OnCardClick {Time}", DateTime.UtcNow);
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
+        }
+
+    }
+
 }
