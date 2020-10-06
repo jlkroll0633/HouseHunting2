@@ -13,6 +13,7 @@
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 @inject IBL _ibl
+@inject IJSRuntime _jsRuntime
 
 <h3>House List</h3>
 
@@ -32,9 +33,8 @@
                         @ref="Grid"
                         AllowPaging="false"
                         AllowSorting="true"
-                        AllowSelection="true"
-                        >
-                       
+                        AllowSelection="true">
+
                     @*<GridPageSettings PageSize="6"></GridPageSettings>*@
                     <GridEvents OnActionBegin="ActionBeginAsync" TValue="HouseObject"
                                 RowSelected="OnRowSelected"
@@ -42,7 +42,7 @@
                                 OnActionComplete="OnActionCompleteAsync"
                                 OnDataBound="DataHandlerAsync"
                                 OnLoad="OnGridLoadAsync">
-                                
+
 
                     </GridEvents>
                     <GridEditSettings AllowAdding="true"
@@ -76,7 +76,7 @@
                         <GridColumn Field=@nameof(HouseObject.Address)
                                     HeaderText="Address"
                                     ValidationRules="@(new ValidationRules { Required = true })"
-                                    Width="150">
+                                    Width="110">
 
                         </GridColumn>
                         <GridColumn Field=@nameof(HouseObject.Price)
@@ -91,19 +91,24 @@
 
                         <GridColumn Field=@nameof(HouseObject.ZillowUrl)
                                     HeaderText="Zillow"
-                                    Width="160">
+                                    Width="100">
 
                         </GridColumn>
                         <GridColumn Field=@nameof(HouseObject.ImageUrl)
                                     HeaderText="Image Url"
-                                    Width="75"
+                                    Width="50"
                                     Visible="true">
 
                         </GridColumn>
                         <GridColumn Field=@nameof(HouseObject.IsActive)
                                     HeaderText="Is Active"
                                     DisplayAsCheckBox="true"
-                                    Width="50">
+                                    Width="30">
+
+                        </GridColumn>
+                        <GridColumn Field=@nameof(HouseObject.Notes)
+                                    HeaderText="Notes"
+                                    Width="100">
 
                         </GridColumn>
                     </GridColumns>
@@ -119,6 +124,10 @@
                         <b class="imageText">@SelectedHouse.Score.ToString()</b>
 
                     </div>
+                    <div >
+                        <SfButton CssClass="btn" @onclick="@(e =>NavigateToUrlAsync(SelectedHouse.ZillowUrl))">Zillow</SfButton>
+                    </div>
+
                     <SfGrid DataSource="@SelectedHouse.Features"
                             @ref="DetailsGrid"
                             Toolbar="@(new List<string>() {"Add","Edit","Delete","Update", "Cancel" })">
@@ -139,7 +148,7 @@
                             <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
                                         AllowEditing="false" EditType="EditType.DropDownEdit"
                                         IsPrimaryKey="true">
-                                
+
                                 <EditTemplate Context="editFeature">
                                     @{
                                         var feature = (editFeature as FeatureObject);
@@ -169,20 +178,25 @@
         height: 55px;
         width: 55px;
         border-radius: 5px 20px 5px;
-        box-shadow: inset 0 0 1px #e0e0e0, inset 0 0 14px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
         float: left;
-       
     }
+
     .imageText {
         padding-left: 20px;
         float: right;
         font-size: x-large;
         color: maroon;
+        
     }
-    
-   
-
-    
+    .btn {
+        position: absolute;
+        right: 0;
+        background-color: white;
+        color: black;
+        border: 2px solid #4CAF50; /* Green */
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    }
 </style>
 
 @code {
@@ -307,7 +321,7 @@
     }
     public async Task OnDetailBeginEditAsync(BeginEditArgs<FeatureObject> args)
     {
-       
+
         if (!args.RowData.IsEditable)
         {
             args.Cancel = true;
@@ -342,7 +356,7 @@
     }
     public bool ContinuePaging = true;
     public bool InitialRender { get; set; }
-    //public int Value = 1015; // consider that value your querystring contains 
+    //public int Value = 1015; // consider that value your querystring contains
     public List<HouseObject> houseObj { get; set; }
 
 
@@ -351,7 +365,7 @@
         try
         {
             await this.Grid.SelectRow(selectedRow);
-            //if (InitialRender) // to handled during the initial rendering of Grid 
+            //if (InitialRender) // to handled during the initial rendering of Grid
             //{
             //    InitialRender = false;
 
@@ -373,6 +387,20 @@
         catch (Exception ex)
         {
             _logger.LogWarning("Warning in DataHandler {Time}. {stackTrace}. {ex.message}", DateTime.UtcNow, ex.StackTrace, ex.Message);
+        }
+
+
+    }
+    public async Task NavigateToUrlAsync(string url)
+    {
+        try
+        {
+            await _jsRuntime.InvokeAsync<object>("open", url, "_blank");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Warning navigating to url {Time}", DateTime.UtcNow);
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
     }

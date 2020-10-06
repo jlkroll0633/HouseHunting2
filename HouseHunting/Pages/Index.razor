@@ -43,10 +43,13 @@ else
                                             <div class="card-text-value">
                                                 <b>@houseID</b>
                                             </div>
+                                            <div class="card-body">
+                                                <b>@house.Notes</b>
+                                            </div>
                                         </td>
 
                                     </tr>
-                                    @foreach (FeatureObject feature in house.Features)
+                                    @*@foreach (FeatureObject feature in house.Features)
                                     {
                                         <tr>
                                             <td>
@@ -56,7 +59,7 @@ else
                                             </td>
 
                                         </tr>
-                                    }
+                                    }*@
 
 
                                 </table>

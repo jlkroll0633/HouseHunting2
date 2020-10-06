@@ -5,6 +5,7 @@
     [ZillowUrl] NVARCHAR (MAX) NULL,
     [ImageUrl]  NVARCHAR (MAX) NULL,
     [IsActive] BIT NULL, 
+    [Notes] NVARCHAR(MAX) NULL, 
     CONSTRAINT [PK_Houses] PRIMARY KEY CLUSTERED ([HouseID] ASC)
 );
 
