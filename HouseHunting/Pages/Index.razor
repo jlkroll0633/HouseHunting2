@@ -4,7 +4,7 @@
 @using DataAccess
 @using Microsoft.Extensions.Logging
 @inject ILogger<Index> _logger
-
+@inject IJSRuntime _jsRuntime
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 @inject IBL _ibl
@@ -165,7 +165,7 @@ else
 </style>
 @code {
 
-    [Inject] public IJSRuntime JsRuntime { get; set; }
+    //[Inject] public IJSRuntime JsRuntime { get; set; }
     List<HouseObject> houseObjectList;
     List<HouseObject> activeHouseObjectList;
     List<FeatureObject> Features;
@@ -175,26 +175,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        sql = "spGetAllActiveHouseDetails";
         try
         {
-            connString = _iconfig.GetConnectionString("defaultWork");
-            houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
-            //Filter all active listings
-
-
-
-            foreach (HouseObject house in houseObjectList)
-            {
-
-                sql = "spGetFeaturesByHouseID";
-
-                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
-
-
-                house.Features.AddRange(Features);
-                house.Score = house.GetScore();
-            }
+            houseObjectList = await _ibl.GetAllHouseList(true);
             houseObjectList = houseObjectList.OrderByDescending(s => s.Score).ToList();
         }
         catch (Exception ex)
@@ -210,8 +193,7 @@ else
     {
         try
         {
-
-            await JsRuntime.InvokeAsync<object>("open", url, "_blank");
+            await _jsRuntime.InvokeAsync<object>("open", url, "_blank");
         }
         catch (Exception ex)
         {

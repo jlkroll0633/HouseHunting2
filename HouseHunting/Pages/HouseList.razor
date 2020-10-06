@@ -8,8 +8,8 @@
 @using Syncfusion.Blazor.Data
 @using Microsoft.Extensions.Logging
 @using HouseHunting.Data
-@inject ILogger<HouseList> _logger
 
+@inject ILogger<HouseList> _logger
 @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 @inject IBL _ibl
@@ -40,7 +40,8 @@
                                 RowSelected="OnRowSelected"
                                 OnActionFailure="OnActionFailure"
                                 OnActionComplete="OnActionCompleteAsync"
-                                OnDataBound="DataHandlerAsync">
+                                OnDataBound="DataHandlerAsync"
+                                OnLoad="OnGridLoadAsync">
                                 
 
                     </GridEvents>
@@ -134,36 +135,24 @@
 
 
                         <GridColumns>
-                            <GridColumn Field=@nameof(FeatureObject.FeatureID) HeaderText="ID" Width="75"
-                                        IsPrimaryKey="true"
-                                        AllowEditing="false">
 
-
-                            </GridColumn>
                             <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
-                                        AllowEditing="false" EditType="EditType.DropDownEdit">
-
-
+                                        AllowEditing="false" EditType="EditType.DropDownEdit"
+                                        IsPrimaryKey="true">
+                                
                                 <EditTemplate Context="editFeature">
                                     @{
                                         var feature = (editFeature as FeatureObject);
                                         int index = SelectedHouse.Features.IndexOf(feature);
                                     }
-                                    @*<SfAutoComplete DataSource="@SelectedHouse.Features" TItem="FeatureObject" TValue="string">
-                                    <AutoCompleteFieldSettings Value="FeatureID">
-                                    </AutoCompleteFieldSettings>
-                                </SfAutoComplete>*@
                                     <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
                                                     @bind-Value="@((editFeature as FeatureObject).FeatureID)">
-
                                         <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
                                     </SfDropDownList>
                                 </EditTemplate>
                             </GridColumn>
                             <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
-                                        EditType="EditType.NumericEdit">
-
-                            </GridColumn>
+                                        EditType="EditType.NumericEdit"></GridColumn>
 
                         </GridColumns>
                     </SfGrid>
@@ -202,7 +191,7 @@
     public int Id { get; set; }
 
     int selectedRow = 0;
-    bool but = true;
+
     List<HouseObject> houseObjectList;
     List<FeatureObject> Features;
     List<FeatureObject> FeaturesAll;
@@ -220,8 +209,10 @@
 
     List<HouseFeaturesGrid> houseFeatures;
 
-    protected override void OnParametersSet()
+    public async Task OnGridLoadAsync()
     {
+        if (SelectedHouse == null) selectedRow = 0;
+        else selectedRow = houseObjectList.IndexOf(SelectedHouse);
 
     }
 
@@ -229,32 +220,9 @@
     {
         try
         {
-            connString = _iconfig.GetConnectionString("defaultWork");
-            sql = "spGetAllFeatures";
-            FeaturesAll = await _idao.Load<FeatureObject, dynamic>(new { }, connString, sql);
-            sql = "spGetAllHouseFeatures";
-            houseFeatures = await _idao.Load<HouseFeaturesGrid, dynamic>(new { }, connString, sql);
-            sql = "spGetAllHouseDetails";
-            houseObjectList = await _idao.Load<HouseObject, dynamic>(new { }, connString, sql);
-
-            foreach (HouseObject house in houseObjectList)
-            {
-                sql = "spGetFeaturesByHouseID";
-                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = house.HouseID }, connString, sql);
-
-                house.Features.AddRange(Features);
-                house.Score = house.GetScore();
-
-            }
-
-
+            houseObjectList = await _ibl.GetAllHouseList();
             SelectedHouse = houseObjectList.Find(h => h.HouseID == Id);
-            selectedRow = houseObjectList.IndexOf(SelectedHouse);
-
-            //need to trigger On row select, I think?
-
-
-
+            FeaturesAll = await _ibl.GetAllUniqueFeatures();
         }
         catch (Exception ex)
         {
@@ -262,38 +230,34 @@
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
 
-
-
-
     }
     public async Task ActionBeginAsync(ActionEventArgs<HouseObject> args)
     {
         HouseObject house = args.Data;
         try
         {
-            //if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
-            //{
-            //    await Grid.ShowColumns("Image Url");
-            //}
+            if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit || args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
+            {
+                //await Grid.ShowColumns("Image Url");
+            }
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
                 if (args.Action == "Edit")
                 {
-
-                    sql = "spUpdateHouseDetails";
-                    bool isEdit = await _idao.EditAsync<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID, IsActive = house.IsActive }, connString, sql);
+                    bool isEdit = await _ibl.EditHouseDetails(house);
 
                 }
                 else if (args.Action == "Add")
                 {
 
-                    int newId = await _idao.AddHouseAsync<HouseObject>(house.Address, house.Price, house.ZillowUrl, house.ImageUrl, connString, house.IsActive);
+                    int newId = await _ibl.AddNewHouse(house);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
                 //TODO make this SP
-                bool isDeleted = await _idao.DeleteHouseAsync<dynamic>(new { HouseID = house.HouseID }, connString);
+
+                bool isDeleted = await _ibl.DeleteHouse(house.HouseID);
             }
 
         }
@@ -314,53 +278,24 @@
         {
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
-                sql = "spGetFeatureByFeatureID";
-                List<FeatureObject> sqlFeatures = await _idao.Load<FeatureObject, dynamic>(new { FeatureID = features.FeatureID }, connString, sql);
+                //sql = "spGetFeatureByFeatureID";
+                List<FeatureObject> sqlFeatures = await _ibl.GetFeatureByFeatureID(features);
                 FeatureObject sqlFeature = sqlFeatures[0];
 
                 if (args.Action == "Edit")
                 {
-                    //result = await _ibl.EditHouseFeature(features, SelectedHouse.HouseID, connString);
-                    sql = "spEditFeatureWeight";
-
-                    if(sqlFeature.IsEditable)
-                    {
-                        if (sqlFeature.Weight == features.Weight)
-                        {
-                            result = await _idao.EditAsync<dynamic>(new { Weight = (string)null, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
-                        }
-                        else
-                        {
-                            result = await _idao.EditAsync<dynamic>(new { Weight = args.Data.Weight, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
-                        }
-                    }
-                    else
-                    {
-                        result = await _idao.EditAsync<dynamic>(new { Weight = (string)null, FeatureID = args.Data.FeatureID, HouseID = SelectedHouse.HouseID }, connString, sql);
-                    }
+                    result = await _ibl.EditHouseFeatures(features, sqlFeature, SelectedHouse);
 
                 }
                 else if (args.Action == "Add")
                 {
 
-
-                    sql = "spInsertNewHouseFeature";
-                    if (sqlFeature.IsEditable)
-                    {
-                        result = await _idao.AddAsync<dynamic>(new { HouseID = SelectedHouse.HouseID, FeatureID = args.Data.FeatureID, Weight = args.Data.Weight }, connString, sql);
-
-                    }
-                    else
-                    {
-                        result = await _idao.AddAsync<dynamic>(new { HouseID = SelectedHouse.HouseID, FeatureID = args.Data.FeatureID, Weight = (string)null }, connString, sql);
-                    }
-
+                    result = await _ibl.AddFeatureToHouse(features, sqlFeature, SelectedHouse);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
-                sql = "spDeleteFeatureByHouseID";
-                bool isDeleted = await _idao.DeleteAsync<dynamic>(new { HouseID = SelectedHouse.HouseID, FeatureID = args.Data.FeatureID }, connString, sql);
+                bool isDeleted = await _ibl.DeleteFeatureFromHouse(SelectedHouse, features);
             }
         }
         catch (Exception ex)
@@ -372,6 +307,7 @@
     }
     public async Task OnDetailBeginEditAsync(BeginEditArgs<FeatureObject> args)
     {
+       
         if (!args.RowData.IsEditable)
         {
             args.Cancel = true;
@@ -414,6 +350,7 @@
     {
         try
         {
+            await this.Grid.SelectRow(selectedRow);
             //if (InitialRender) // to handled during the initial rendering of Grid 
             //{
             //    InitialRender = false;
@@ -439,11 +376,7 @@
         }
 
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            InitialRender = true;
-        }
-    }
+
+
+
 }

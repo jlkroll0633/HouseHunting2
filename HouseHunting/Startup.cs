@@ -14,6 +14,8 @@ using Syncfusion.Blazor;
 using DataAccess;
 using HouseHunting.Buisness_Logic;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
+using System.Configuration;
 
 namespace HouseHunting
 {
@@ -36,6 +38,7 @@ namespace HouseHunting
             services.AddSyncfusionBlazor();
             services.AddSingleton<INewHouseDAO, NewHouseDAO>();
             services.AddSingleton<IBL, BL>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

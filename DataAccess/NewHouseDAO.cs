@@ -112,27 +112,7 @@ namespace DataAccess
 
             }
         }
-        public async Task<bool> EditHouseFeaturesAsync<T>(T parameters, string connString, string sql)
-        {
-
-            using (IDbConnection connection = new SqlConnection(connString))
-            {
-                try
-                {
-                    connection.Open();
-                    await connection.ExecuteAsync(sql, parameters, null, null, CommandType.StoredProcedure);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    ExceptionDispatchInfo.Capture(ex).Throw();
-                    throw;
-                    //throw new Exception($"Could not edit house using stored proc: {sql}", ex);
-                }
-
-
-            }
-        }
+        
 
         public async Task<bool> DeleteHouseAsync<T>(T parameters, string connString)
         {
@@ -158,7 +138,6 @@ namespace DataAccess
                             rows = await connection.ExecuteAsync(sql2, parameters, transaction);
                             rows = await connection.ExecuteAsync(sql, parameters, transaction);
                             transaction.Commit();
-
                         }
 
                         return true;
@@ -202,6 +181,7 @@ namespace DataAccess
         public async Task<bool> DeleteAsync<T>(T parameters, string connString, string sql)
         {
             //TODO does this need to be async?
+            //TODO make this one call by using stored proc
             bool isDeleted = false;
             try
             {

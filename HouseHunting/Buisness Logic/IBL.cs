@@ -10,9 +10,18 @@ namespace HouseHunting
 {
     public interface IBL
     {
-        
+        Task<bool> AddFeatureToHouse(FeatureObject feature, FeatureObject sqlFeature, HouseObject house);
+        Task<int> AddNewHouse(HouseObject house);
+        Task<bool> DeleteFeatureFromHouse(HouseObject house, FeatureObject feature);
+        Task<bool> DeleteHouse(int house);
+        Task<bool> EditHouseDetails(HouseObject house);
+        Task<bool> EditHouseFeatures(FeatureObject feature, FeatureObject sqlFeature, HouseObject house);
         string GenerateStackTrace(Exception ex);
-        Task NavigateToUrlAsync(string url);
-        
+       
+       
+        Task<List<HouseObject>> GetAllHouseList(bool activeOnly = false);
+        Task<List<FeatureObject>> GetAllUniqueFeatures();
+        Task<List<FeatureObject>> GetFeatureByFeatureID(FeatureObject feature);
+        Task<List<MarkerModel>> GetHousesWithMapMarkers();
     }
 }

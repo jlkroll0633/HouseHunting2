@@ -13,7 +13,7 @@ namespace DataAccess
         Task<bool> DeleteHouseAsync<T>(T parameters, string connString);
        
         Task<bool> EditAsync<T>(T parameters, string connString, string sql);
-        Task<bool> EditHouseFeaturesAsync<T>(T parameters, string connString, string sql);
+      
         Task<List<T>> Load<T, U>(U parameters, string connString, string sql);
         
         //Task<List<T>> LoadFeatures<T, U>(U parameters, string connString);

@@ -71,30 +71,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        List<HouseObject> houseObjectList;
+        //List<HouseObject> houseObjectList;
 
-        sql = "spGetAllActiveHouseDetails";
+        //sql = "spGetAllActiveHouseDetails";
         try
         {
-            connString = _iconfig.GetConnectionString("defaultWork");
-            mapMarkers = await _idao.Load<MarkerModel, dynamic>(new { }, connString, sql);
+            mapMarkers = await _ibl.GetHousesWithMapMarkers();
+            //connString = _iconfig.GetConnectionString("defaultWork");
+            //mapMarkers = await _idao.Load<MarkerModel, dynamic>(new { }, connString, sql);
 
-            foreach (MarkerModel marker in mapMarkers)
-            {
+            //foreach (MarkerModel marker in mapMarkers)
+            //{
 
-                sql = "spGetFeaturesByHouseID";
+            //    sql = "spGetFeaturesByHouseID";
 
-                Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = marker.HouseID }, connString, sql);
-                sql = "spGetMapMarkerByAddress";
-                marker.Features.AddRange(Features);
-                marker.Score = marker.GetScore();
-                List<MarkerModel> location = new List<MarkerModel>();
-                location = await _idao.Load<MarkerModel, dynamic>(new { Address = marker.Address }, connString, sql);
-                marker.Latitude = location[0].Latitude;
-                marker.Longitude = location[0].Longitude;
-                marker.Name = marker.HouseID.ToString();
+            //    Features = await _idao.Load<FeatureObject, dynamic>(new { HouseID = marker.HouseID }, connString, sql);
+            //    sql = "spGetMapMarkerByAddress";
+            //    marker.Features.AddRange(Features);
+            //    marker.Score = marker.GetScore();
+            //    List<MarkerModel> location = new List<MarkerModel>();
+            //    location = await _idao.Load<MarkerModel, dynamic>(new { Address = marker.Address }, connString, sql);
+            //    marker.Latitude = location[0].Latitude;
+            //    marker.Longitude = location[0].Longitude;
+            //    marker.Name = marker.HouseID.ToString();
 
-            }
+            //}
 
         }
         catch (Exception ex)
