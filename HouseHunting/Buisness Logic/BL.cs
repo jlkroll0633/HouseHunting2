@@ -125,7 +125,7 @@ namespace HouseHunting.Buisness_Logic
         public async Task<List<MarkerModel>> GetHousesWithMapMarkers()
         {
             
-            string sql = "spGetFeaturesByHouseID";
+            string sql = "spGetAllActiveHouseDetails";
             List<MarkerModel> mapMarkers = await DAO.Load<MarkerModel, dynamic>(new { }, _connString, sql);
 
             foreach (MarkerModel marker in mapMarkers)

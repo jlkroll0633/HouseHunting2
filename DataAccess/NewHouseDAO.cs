@@ -203,7 +203,10 @@ namespace DataAccess
 
         }
 
-
+        public Task<bool> EditHouseFeaturesAsync<T>(T parameters, string connString, string sql)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }
