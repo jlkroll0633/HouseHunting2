@@ -9,5 +9,6 @@ Set nocount on
       ,[ZillowUrl]
       ,[ImageUrl]
       ,[IsActive]
+      ,[Notes]
   FROM [Houses].[dbo].[HouseDetails]
 End

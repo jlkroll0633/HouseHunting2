@@ -4,9 +4,10 @@
 	@ZillowUrl nvarchar(MAX),
 	@ImageUrl nvarchar(MAX),
 	@HouseID int,
-	@IsActive bit
+	@IsActive bit,
+	@Notes nvarchar(MAX)
 AS
 Begin
 Set Nocount on
-	update HouseDetails set Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl, IsActive = @IsActive where HouseID = @HouseID
+	update HouseDetails set Address = @Address, Price = @Price, ZillowUrl = @ZillowUrl, ImageUrl = @ImageUrl, IsActive = @IsActive, Notes = @Notes where HouseID = @HouseID
 end

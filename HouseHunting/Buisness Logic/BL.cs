@@ -67,7 +67,7 @@ namespace HouseHunting.Buisness_Logic
         public async Task<bool> EditHouseDetails(HouseObject house)
         {
             string sql= "spUpdateHouseDetails";
-            bool isEdited = await DAO.EditAsync<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID, IsActive = house.IsActive }, _connString, sql);
+            bool isEdited = await DAO.EditAsync<dynamic>(new { Address = house.Address, Price = house.Price, ZillowUrl = house.ZillowUrl, ImageUrl = house.ImageUrl, HouseID = house.HouseID, IsActive = house.IsActive, Notes = house.Notes }, _connString, sql);
             return isEdited;
         }
         public async Task<int> AddNewHouse(HouseObject house)
