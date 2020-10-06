@@ -20,7 +20,7 @@ namespace HouseHunting.Buisness_Logic
         public BL(INewHouseDAO newHouseDAO, IConfiguration Config)
         {
             DAO = newHouseDAO;
-            _connString = Config.GetConnectionString("defaultWork");
+            _connString = Config.GetConnectionString("defaultHome");
         }
        
 
