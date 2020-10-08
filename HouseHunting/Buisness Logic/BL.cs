@@ -8,19 +8,22 @@ using HouseHunting.Data;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlTypes;
 using Syncfusion.Blazor.Maps;
+using Microsoft.Extensions.Logging;
 
 namespace HouseHunting.Buisness_Logic
 {
     public class BL : IBL
     {
+        private readonly ILogger _logger;
         private string _connString;
         //public IJSRuntime JsRuntime { get; set; }
         public INewHouseDAO DAO { get; set; }
 
-        public BL(INewHouseDAO newHouseDAO, IConfiguration Config)
+        public BL(INewHouseDAO newHouseDAO, IConfiguration Config, ILoggerFactory logger)
         {
             DAO = newHouseDAO;
             _connString = Config.GetConnectionString("defaultWork");
+            _logger = logger.CreateLogger("MarkerModel");
         }
        
 
@@ -126,7 +129,10 @@ namespace HouseHunting.Buisness_Logic
         {
             
             string sql = "spGetAllActiveHouseDetails";
+            List<MarkerModel> toBeRemoved = new List<MarkerModel>();
             List<MarkerModel> mapMarkers = await DAO.Load<MarkerModel, dynamic>(new { }, _connString, sql);
+            //mapMarkers = await DAO.Load<MarkerModel, dynamic>(new { }, _connString, sql);
+
 
             foreach (MarkerModel marker in mapMarkers)
             {
@@ -138,12 +144,33 @@ namespace HouseHunting.Buisness_Logic
                 marker.Score = marker.GetScore();
                 List<MarkerModel> location = new List<MarkerModel>();
                 location = await DAO.Load<MarkerModel, dynamic>(new { Address = marker.Address }, _connString, sql);
-                marker.Latitude = location[0].Latitude;
-                marker.Longitude = location[0].Longitude;
-                marker.Name = marker.HouseID.ToString();
+                if (location.Count == 0)
+                {
+                    toBeRemoved.Add(marker);
+                   
+                }
+                else
+                {
+                    marker.Latitude = location[0].Latitude;
+                    marker.Longitude = location[0].Longitude;
+                    marker.Name = marker.HouseID.ToString();
+                }
 
             }
+
+            if (toBeRemoved.Count > 0)
+            {
+                
+                foreach (MarkerModel mm in toBeRemoved)
+                {
+                    mapMarkers.Remove(mm);
+                    _logger.LogWarning($"no locations for house ID: {mm.HouseID}", mm);
+                }
+                
+            }
+           
             return mapMarkers;
+
         }
         public async Task<List<FeatureObject>> GetFeatureByFeatureID(FeatureObject feature)
         {
