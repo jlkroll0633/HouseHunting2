@@ -144,18 +144,23 @@
 
 
                         <GridColumns>
+                            <GridColumn Field=@nameof(FeatureObject.FeatureID) HeaderText="" Width="110"
+                                        AllowEditing="false"
+                                        IsPrimaryKey="true">
 
+                            </GridColumn>
                             <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
                                         AllowEditing="false" EditType="EditType.DropDownEdit"
-                                        IsPrimaryKey="true">
+                                        >
 
                                 <EditTemplate Context="editFeature">
                                     @{
                                         var feature = (editFeature as FeatureObject);
                                         int index = SelectedHouse.Features.IndexOf(feature);
                                     }
-                                    <SfDropDownList ID="FeatureID" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
-                                                    @bind-Value="@((editFeature as FeatureObject).FeatureID)">
+                                    <SfDropDownList ID="Description" TValue="string" DataSource="FeaturesAll" TItem="FeatureObject"
+                                                    @bind-Value="@((editFeature as FeatureObject).Description)">
+
                                         <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
                                     </SfDropDownList>
                                 </EditTemplate>
