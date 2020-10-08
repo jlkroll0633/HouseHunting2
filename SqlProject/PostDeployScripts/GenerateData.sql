@@ -294,31 +294,51 @@ Go
 
 if not exists (Select Top (1) * from Locations)
 begin
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'209 Gutter Rd, Harriet, AR 72639', CAST(36.041380 AS Decimal(8, 6)), CAST(-92.494070 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'174 Fallen Tree Rd, Marshall, AR 72650', CAST(35.985530 AS Decimal(8, 6)), CAST(-92.659560 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'795 Oak Grove Rd, Amity, AR 71921', CAST(34.247680 AS Decimal(8, 6)), CAST(-93.303010 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'78 Gideons Ln, Gainesville, MO 65655', CAST(36.500200 AS Decimal(8, 6)), CAST(-92.340530 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'1836 Highway 374 E, Saint Joe, AR 72675', CAST(36.047600 AS Decimal(8, 6)), CAST(-92.782460 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'815 Little Creek Ln, Calico Rock, AR 72519', CAST(36.130710 AS Decimal(8, 6)), CAST(-92.092050 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'1640 E Highway 374, Saint Joe, AR 72675', CAST(36.000990 AS Decimal(8, 6)), CAST(-92.757490 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'4599 Brewer Rd, Edgemont, AR 72044', CAST(35.629740 AS Decimal(8, 6)), CAST(-92.198310 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'538 Pleasant Run Rd, Mammoth Spring, AR 72554', CAST(36.474600 AS Decimal(8, 6)), CAST(-91.405090 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'11941 State Highway 21 N, Doniphan, MO 63935', CAST(36.529990 AS Decimal(8, 6)), CAST(-90.740430 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'1575 County Road 315, Squires, MO 65755', CAST(36.817344 AS Decimal(8, 6)), CAST(-92.585746 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'1086 Blacks Ferry Rd, Pocahontas, AR 72455', CAST(36.304176 AS Decimal(8, 6)), CAST(-91.052600 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'36961 State Highway 80, Danville, AR 72833', CAST(34.963189 AS Decimal(8, 6)), CAST(-93.706020 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'6178 Hanover Rd, Mountain View, AR 72560', CAST(35.773736 AS Decimal(8, 6)), CAST(-92.127767 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'3476 Highway 115 N, Pocahontas, AR 72455', CAST(36.297406 AS Decimal(8, 6)), CAST(-90.970228 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'324 Cherryville Rd, Salem, MO 65560', CAST(37.853330 AS Decimal(8, 6)), CAST(-91.329189 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'3314 Old 12 Cross Rds, Chester, AR 72934', CAST(35.708194 AS Decimal(8, 6)), CAST(-92.247027 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'214 Parisi Ln, Booneville, AR 72927', CAST(35.058182 AS Decimal(8, 6)), CAST(-93.884800 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'447 Highway 368, Prescott, AR 71857', CAST(33.753473 AS Decimal(8, 6)), CAST(-93.108778 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'20 Skinner Rd, Judsonia, AR 72081', CAST(35.534302 AS Decimal(8, 6)), CAST(-91.649323 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'0 State Hwy Dd, Ava, MO 65608', CAST(36.858548 AS Decimal(8, 6)), CAST(-92.842531 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'303 County Road 15, Mountain Home, AR 72653', CAST(36.428468 AS Decimal(8, 6)), CAST(-92.465052 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'0 Dodd Mountain Rd, Shirley, AR 72153', CAST(35.656427 AS Decimal(8, 6)), CAST(-92.383587 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'54 County Road 4061, Lafe, AR 72436', CAST(36.279544 AS Decimal(8, 6)), CAST(-90.437365 AS Decimal(9, 6)))
-INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude]) VALUES (N'1680 Marion County #2061, Yellville, AR 72687', CAST(36.440776 AS Decimal(8, 6)), CAST(-92.816345 AS Decimal(9, 6)))
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'209 Gutter Rd, Harriet, AR 72639', CAST(36.041380 AS Decimal(8, 6)), CAST(-92.494070 AS Decimal(9, 6)), 1)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'174 Fallen Tree Rd, Marshall, AR 72650', CAST(35.985530 AS Decimal(8, 6)), CAST(-92.659560 AS Decimal(9, 6)), 2)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'795 Oak Grove Rd, Amity, AR 71921', CAST(34.247680 AS Decimal(8, 6)), CAST(-93.303010 AS Decimal(9, 6)), 3)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'78 Gideons Ln, Gainesville, MO 65655', CAST(36.500200 AS Decimal(8, 6)), CAST(-92.340530 AS Decimal(9, 6)), 4)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'1836 Highway 374 E, Saint Joe, AR 72675', CAST(36.047600 AS Decimal(8, 6)), CAST(-92.782460 AS Decimal(9, 6)), 5)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'815 Little Creek Ln, Calico Rock, AR 72519', CAST(36.130710 AS Decimal(8, 6)), CAST(-92.092050 AS Decimal(9, 6)), 7)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'1640 E Highway 374, Saint Joe, AR 72675', CAST(36.000990 AS Decimal(8, 6)), CAST(-92.757490 AS Decimal(9, 6)), 8)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'4599 Brewer Rd, Edgemont, AR 72044', CAST(35.629740 AS Decimal(8, 6)), CAST(-92.198310 AS Decimal(9, 6)), 9)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'11941 State Highway 21 N, Doniphan, MO 63935', CAST(36.529990 AS Decimal(8, 6)), CAST(-90.740430 AS Decimal(9, 6)), 10)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'1575 County Road 315, Squires, MO 65755', CAST(36.817344 AS Decimal(8, 6)), CAST(-92.585746 AS Decimal(9, 6)), 11)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'1086 Blacks Ferry Rd, Pocahontas, AR 72455', CAST(36.304176 AS Decimal(8, 6)), CAST(-91.052600 AS Decimal(9, 6)), 12)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'36961 State Highway 80, Danville, AR 72833', CAST(34.963189 AS Decimal(8, 6)), CAST(-93.706020 AS Decimal(9, 6)), 13)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'6178 Hanover Rd, Mountain View, AR 72560', CAST(35.773736 AS Decimal(8, 6)), CAST(-92.127767 AS Decimal(9, 6)), 14)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'3476 Highway 115 N, Pocahontas, AR 72455', CAST(36.297406 AS Decimal(8, 6)), CAST(-90.970228 AS Decimal(9, 6)), 15)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'324 Cherryville Rd, Salem, MO 65560', CAST(37.853330 AS Decimal(8, 6)), CAST(-91.329189 AS Decimal(9, 6)), 16)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'214 Parisi Ln, Booneville, AR 72927', CAST(35.058182 AS Decimal(8, 6)), CAST(-93.884800 AS Decimal(9, 6)), 17)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'447 Highway 368, Prescott, AR 71857', CAST(33.753473 AS Decimal(8, 6)), CAST(-93.108778 AS Decimal(9, 6)), 18)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'20 Skinner Rd, Judsonia, AR 72081', CAST(35.534302 AS Decimal(8, 6)), CAST(-91.649323 AS Decimal(9, 6)), 19)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'0 State Hwy Dd, Ava, MO 65608', CAST(36.858548 AS Decimal(8, 6)), CAST(-92.842531 AS Decimal(9, 6)), 20)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'303 County Road 15, Mountain Home, AR 72653', CAST(36.428468 AS Decimal(8, 6)), CAST(-92.465052 AS Decimal(9, 6)), 21)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'0 Dodd Mountain Rd, Shirley, AR 72153', CAST(35.656427 AS Decimal(8, 6)), CAST(-92.383587 AS Decimal(9, 6)), 22)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'54 County Road 4061, Lafe, AR 72436', CAST(36.279544 AS Decimal(8, 6)), CAST(-90.437365 AS Decimal(9, 6)), 23)
+
+INSERT [dbo].[Locations] ([Address], [Latitude], [Longitude], [HouseID]) VALUES (N'1680 Marion County #2061, Yellville, AR 72687', CAST(36.440819 AS Decimal(8, 6)), CAST(-92.816259 AS Decimal(9, 6)), 24)
 
 end
 Go

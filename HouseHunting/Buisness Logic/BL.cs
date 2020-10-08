@@ -139,11 +139,11 @@ namespace HouseHunting.Buisness_Logic
 
                 sql = "spGetFeaturesByHouseID";
                 List<FeatureObject> Features = await DAO.Load<FeatureObject, dynamic>(new { HouseID = marker.HouseID }, _connString, sql);
-                sql = "spGetMapMarkerByAddress";
+                sql = "spGetMapMarkerByHouseID";
                 marker.Features.AddRange(Features);
                 marker.Score = marker.GetScore();
                 List<MarkerModel> location = new List<MarkerModel>();
-                location = await DAO.Load<MarkerModel, dynamic>(new { Address = marker.Address }, _connString, sql);
+                location = await DAO.Load<MarkerModel, dynamic>(new { HouseID = marker.HouseID }, _connString, sql);
                 if (location.Count == 0)
                 {
                     toBeRemoved.Add(marker);

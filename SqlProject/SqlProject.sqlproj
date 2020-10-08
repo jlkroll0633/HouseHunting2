@@ -145,7 +145,7 @@
     <Build Include="StoredProcedures\spInsertNewHouseFeature.sql" />
     <Build Include="StoredProcedures\spDeleteFeatureByHouseID.sql" />
     <Build Include="StoredProcedures\spGetAllFeatures.sql" />
-    <Build Include="StoredProcedures\spGetMapMarkersByAddress.sql" />
+    <Build Include="StoredProcedures\spGetMapMarkersByHouseID.sql" />
     <Build Include="dbo\Tables\Locations.sql" />
     <Build Include="StoredProcedures\spEditFeatureWeight.sql" />
     <Build Include="StoredProcedures\spGetAllHouseFeatures.sql" />
