@@ -24,12 +24,12 @@
             <MapsCenterPosition Latitude="35.323490" Longitude="-91.738187" />
             <MapsZoomSettings Enable="true" ShouldZoomInitially="true" MouseWheelZoom="true" EnablePanning="true" PinchZooming="true" />
             <MapsLayers>
-                
+
                 <MapsLayer LayerType="ShapeLayerType.OSM">
                     <MapsMarkerSettings>
                         <MapsMarker Visible="true" DataSource="@mapMarkers" Shape="MarkerType.Star" Height="13" Width="15">
                             <ChildContent>
-                                <MapsMarkerTooltipSettings Visible="true" Format="Score: <b>${Score}</b><br>Price: <b>${Price}</b><br>Address: <b>${Address}</b><br>" />
+                                <MapsMarkerTooltipSettings Visible="true" Format="ID: <b>${HouseID}</b><br> Score: <b>${Score}</b><br>Price: <b>${Price}</b><br>Address: <b>${Address}</b><br>" />
                             </ChildContent>
                             @*<MarkerTemplate>
                                     @{
@@ -45,8 +45,33 @@
             </MapsLayers>
         </SfMaps>
 
+        <SfGrid DataSource="@mapMarkers" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
+            <GridEditSettings Mode="EditMode.Dialog" AllowAdding="true" AllowDeleting="true" AllowEditing="true"></GridEditSettings>
+            <GridEvents OnActionBegin="OnActionBeginAsync" TValue="MarkerModel"
+                         OnActionFailure="OnActionFailureAsync"
+                        OnBeginEdit="OnBeginEditAsync"
+                        OnCellSave="OnCellSaveAsync">
+                       
+            </GridEvents>
+                <GridColumns>
+                    <GridColumn Field=@nameof(MarkerModel.HouseID) 
+                               IsPrimaryKey="true"
+                                Width="50">
 
+                    </GridColumn>
+                    <GridColumn Field=@nameof(MarkerModel.Latitude)
+                               
+                                Width="70">
 
+                    </GridColumn>
+                    <GridColumn Field=@nameof(MarkerModel.Longitude)
+                                
+                                Width="70">
+
+                    </GridColumn>
+                </GridColumns>
+
+        </SfGrid>
     }
 }
 @*<style>
@@ -71,11 +96,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-       
+
         try
         {
             mapMarkers = await _ibl.GetHousesWithMapMarkers();
-            
+
         }
         catch (Exception ex)
         {
@@ -84,7 +109,7 @@
         }
     }
 
-    async Task OnMarkerClick(IMarkerClickEventArgs args)
+    public async Task OnMarkerClick(IMarkerClickEventArgs args)
     {
         try
         {
@@ -98,5 +123,48 @@
         }
 
     }
+    public async Task OnActionBeginAsync(ActionEventArgs<MarkerModel> args)
+    {
+        MarkerModel marker = args.Data;
+        try
+        {
 
+            if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+            {
+                if (args.Action == "Edit")
+                {
+                    bool isEdit = await _ibl.EditMapMarker(marker);
+
+                }
+                else if (args.Action == "Add")
+                {
+
+                    bool isAdded = await _ibl.AddNewLocation(marker);
+                }
+            }
+            else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
+            {
+
+                bool isDeleted = await _ibl.DeleteLocation(marker.HouseID);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Warning in ActionBeginAsync {Time}", DateTime.UtcNow);
+            //string stackTrace = _ibl.GenerateStackTrace(ex);
+        }
+    }
+    public async Task OnActionFailureAsync(FailureEventArgs args)
+    {
+        _logger.LogWarning("Warning in OnActionFailureAync {Time}", DateTime.UtcNow);
+    }
+    public async Task OnBeginEditAsync(BeginEditArgs<MarkerModel> args)
+    {
+        _logger.LogWarning("Warning in OnBeginEditAsync {Time}", DateTime.UtcNow);
+    }
+    public async Task OnCellSaveAsync(CellSaveArgs<MarkerModel> args)
+    {
+        _logger.LogWarning("Warning in OnBeginEditAsync {Time}", DateTime.UtcNow);
+    }
 }

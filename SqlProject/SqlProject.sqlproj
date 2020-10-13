@@ -152,6 +152,9 @@
     <Build Include="StoredProcedures\spGetAllActiveHouseDetails.sql" />
     <Build Include="StoredProcedures\spGetFeatureWeight.sql" />
     <Build Include="StoredProcedures\spGetFeatureByFeatureID.sql" />
+    <Build Include="StoredProcedures\spEditLocationByHouseID.sql" />
+    <Build Include="StoredProcedures\spInsertNewLocation.sql" />
+    <Build Include="StoredProcedures\spDeleteLocation.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HousePublishSql.publish.xml" />

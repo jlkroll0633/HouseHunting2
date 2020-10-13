@@ -172,6 +172,52 @@ namespace HouseHunting.Buisness_Logic
             return mapMarkers;
 
         }
+        ////public async Task<List<Pages.Counter.MarkerModel>> GetHousesWithMapMarkersUpdated()
+        ////{
+
+        ////    string sql = "spGetAllActiveHouseDetails";
+        ////    List<MapMarkerObject> toBeRemoved = new List<MapMarkerObject>();
+        ////    List<HouseObject> mapMarkers = await DAO.Load<HouseObject, dynamic>(new { }, _connString, sql);
+
+
+        ////    foreach (HouseObject marker in mapMarkers)
+        ////    {
+
+        ////        sql = "spGetFeaturesByHouseID";
+        ////        List<FeatureObject> Features = await DAO.Load<FeatureObject, dynamic>(new { HouseID = marker.HouseID }, _connString, sql);
+        ////        sql = "spGetMapMarkerByHouseID";
+        ////        marker.Features.AddRange(Features);
+        ////        marker.Score = marker.GetScore();
+        ////        List<MarkerModel> location = new List<MarkerModel>();
+        ////        location = await DAO.Load<MarkerModel, dynamic>(new { HouseID = marker.HouseID }, _connString, sql);
+        ////        if (location.Count == 0)
+        ////        {
+        ////            toBeRemoved.Add(marker);
+
+        ////        }
+        ////        else
+        ////        {
+        ////            marker.Latitude = location[0].Latitude;
+        ////            marker.Longitude = location[0].Longitude;
+        ////            marker.Name = marker.HouseID.ToString();
+        ////        }
+
+        ////    }
+
+        ////    if (toBeRemoved.Count > 0)
+        ////    {
+
+        ////        foreach (MarkerModel mm in toBeRemoved)
+        ////        {
+        ////            mapMarkers.Remove(mm);
+        ////            _logger.LogWarning($"no locations for house ID: {mm.HouseID}", mm);
+        ////        }
+
+        ////    }
+
+        ////    return mapMarkers;
+
+        ////}
         public async Task<List<FeatureObject>> GetFeatureByFeatureID(FeatureObject feature)
         {
             string sql = "spGetFeatureByFeatureID";
@@ -179,5 +225,26 @@ namespace HouseHunting.Buisness_Logic
             return sqlFeatures;
         }
 
+        public async Task<bool> EditMapMarker(MarkerModel marker)
+        {
+            string sql = "spEditLocationByHouseID";
+            bool isEdited = await DAO.EditAsync<dynamic>(new { HouseID = marker.HouseID, Latitude = marker.Latitude, Longitude = marker.Longitude }, _connString, sql);
+            return isEdited;
+        }
+        public async Task<bool> AddNewLocation(MarkerModel marker)
+        {
+            string sql = "spInsertNewLocation";
+            bool result;
+            result = await DAO.AddAsync<dynamic>(new { HouseID = marker.HouseID, marker.Latitude, Longitude = marker.Longitude }, _connString, sql);
+
+           
+            return result;
+        }
+        public async Task<bool> DeleteLocation(int markerID)
+        {
+            string sql = "spDeleteLocation";
+            bool isDeleted = await DAO.DeleteAsync<dynamic>(new { HouseID = markerID }, _connString, sql);
+            return isDeleted;
+        }
     }
 }

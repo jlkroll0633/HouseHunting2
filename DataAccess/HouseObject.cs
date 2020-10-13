@@ -10,9 +10,9 @@ namespace DataAccess
     public class HouseObject
     {
         public int HouseID { get; set; }
-        [Required]
+       
         public string Address { get; set; }
-        [Required]
+        
         public decimal Price { get; set; }
         public List<FeatureObject> Features { get; set; } = new List<FeatureObject>();
         public double Score { get; set; }

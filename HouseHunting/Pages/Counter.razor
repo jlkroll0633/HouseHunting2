@@ -6,9 +6,9 @@
 @using Syncfusion.Blazor.Data
 @using Microsoft.Extensions.Logging
 @using HouseHunting.Data
-@inject ILogger<HouseList> _logger
+    @inject ILogger<MarkerModel> _logger
 
-@inject INewHouseDAO _idao
+    @inject INewHouseDAO _idao
 @inject IConfiguration _iconfig
 @inject IBL _ibl
 
@@ -17,189 +17,158 @@
 <div class="col-lg-12 control-section">
     <div class="content-wrapper">
         <div class="row">
-            @if (houseObjectList == null)
+            @if (mapMarkersData == null)
             {
-                <p><em>Loading Houses...</em></p>
+                <p><em>Loading Locations...</em></p>
             }
             else
             {
-                <SfGrid DataSource="@houseObjectList"
-                        TValue="HouseObject"
-                        SelectedRowIndex="0"
-                        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
-                        
-                        AllowPaging="true"
-                        AllowSorting="true">
-                    <GridPageSettings PageSize="7"></GridPageSettings>
-                    <GridEvents TValue="HouseObject"
-                                RowSelected="OnRowSelected"
-                                OnActionFailure="OnActionFailure">   </GridEvents>
-                    <GridEditSettings AllowAdding="true"
-                                      AllowDeleting="true"
-                                      AllowEditing="true"
-                                      Mode="EditMode.Normal">
-                    </GridEditSettings>
+                <SfGrid DataSource="@mapMarkersData" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })">
+                    <GridEditSettings Mode="EditMode.Dialog" AllowAdding="true" AllowDeleting="true" AllowEditing="true"></GridEditSettings>
+                    <GridEvents OnActionBegin="OnActionBeginAsync" TValue="HouseHunting.Data.MarkerModel"
+                                OnActionFailure="OnActionFailureAsync"
+                                OnBeginEdit="OnBeginEditAsync"
+                                OnCellSave="OnCellSaveAsync"
+                                OnActionComplete="OnActionCompleteAsync">
 
+                    </GridEvents>
                     <GridColumns>
-                        <GridColumn Field=@nameof(HouseObject.HouseID)
-                                    HeaderText="House ID"
+                        <GridColumn Field=@nameof(HouseHunting.Data.MarkerModel.HouseID)
                                     IsPrimaryKey="true"
-                                    IsIdentity="true"
-                                    ValidationRules="@(new ValidationRules { Required = true, Number = true })"
-                                    TextAlign="TextAlign.Right"
-                                    Width="140">
+                                    Width="50">
 
                         </GridColumn>
-                        <GridColumn Field=@nameof(HouseObject.Address)
-                                    HeaderText="Address"
-                                    ValidationRules="@(new ValidationRules { Required = true })"
-                                    Width="150">
+                        <GridColumn Field=@nameof(HouseHunting.Data.MarkerModel.Latitude)
+                                    Width="70">
 
                         </GridColumn>
-                        <GridColumn Field=@nameof(HouseObject.Price)
-                                    HeaderText="Price"
-                                    ValidationRules="@(new ValidationRules { Required = true })"
-                                    EditType="EditType.NumericEdit"
-                                    Format="C2"
-                                    TextAlign="TextAlign.Right"
-                                    Width="140">
-
-                        </GridColumn>
-
-                        <GridColumn Field=@nameof(HouseObject.ZillowUrl)
-                                    HeaderText="Zillow"
-                                    Width="160">
-
-                        </GridColumn>
-                        <GridColumn Field=@nameof(HouseObject.ImageUrl)
-                                    HeaderText="Image Url"
-                                    Width="150">
+                        <GridColumn Field=@nameof(HouseHunting.Data.MarkerModel.Longitude)
+                                    Width="70">
 
                         </GridColumn>
                     </GridColumns>
+
                 </SfGrid>
             }
 
-            @if (SelectedHouse == null)
-            {
-                <p><em>Loading Features...</em></p>
-            }
-            else
-            {
-                <SfGrid DataSource="@SelectedHouse.Features"
-                        Toolbar="@(new List<string>() { "Edit", "Update", "Cancel" })">
-                    <GridEvents OnActionBegin="OnActionDetailBeginAsync"
-                                OnBeginEdit="OnDetailBeginEditAsync"
-                                OnActionFailure="OnDetailActionFailure"
-                                TValue="FeatureObject">   </GridEvents>
-                    <GridEditSettings AllowAdding="true"
-                                      AllowDeleting="true"
-                                      AllowEditing="true"
-                                      Mode="EditMode.Normal">
-                    </GridEditSettings>
-                    <GridColumns>
-                        <GridColumn Field=@nameof(FeatureObject.Description) HeaderText="Feature" Width="110"
-                                    AllowEditing="false"> </GridColumn>
-                        <GridColumn Field=@nameof(FeatureObject.Weight) HeaderText="Weight" Width="110"
-                                    EditType="EditType.NumericEdit"></GridColumn>
 
-                    </GridColumns>
-                </SfGrid>
-            }
 
         </div>
     </div>
 </div>
 
 @code {
-    List<HouseObject> houseObjectList;
-    HouseObject SelectedHouse;
-    public int? RowIndex { get; set; } = 0;
-    string connString;
+    string sql = string.Empty;
+    string connString = string.Empty;
+
+    List<Pages.Counter.MarkerModel> mapMarkers;
+    List<HouseHunting.Data.MarkerModel> mapMarkersData;
+    
+    public class MarkerModel : HouseObject
+    {
+
+        public string Name { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+
+    }
+    public class HouseObject
+    {
+        public int HouseID { get; set; }
+        public string Address { get; set; }
+        public decimal Price { get; set; }
+        public List<FeatureObject> Features { get; set; } = new List<FeatureObject>();
+        public double Score { get; set; }
+        public string ZillowUrl { get; set; }
+        public bool IsActive { get; set; }
+        public string ImageUrl { get; set; }
+        public string Notes { get; set; }
+
+        public double GetScore()
+        {
+            if (Features.Count == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                int score = 0;
+                foreach (FeatureObject feat in Features)
+                {
+                    score += feat.Weight;
+                }
+                return score;
+            }
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
-     
 
         try
         {
-            houseObjectList = new List<HouseObject>
+            mapMarkers = new List<MarkerModel>
             {
-                new HouseObject() {HouseID = 1, Address = "Address1", ImageUrl = "images/house1.png", ZillowUrl = "https://www.zillow.com/homes/209-Gutter-Rd,-Harriet,-AR-72639_rb/193984030_zpid/",
-                Features = new List<FeatureObject>{
-                    new FeatureObject() {FeatureID = 1, Description = "Desc1", Name = "Name1", IsEditable = true, Weight = 5 },
-                    new FeatureObject() {FeatureID = 2, Description = "Desc2", Name = "Name2", IsEditable = true, Weight = 2 }} },
-
-
-                new HouseObject() {HouseID = 2, Address = "Address2", ImageUrl = "images/house2.png", ZillowUrl = "https://www.zillow.com/homes/209-Gutter-Rd,-Harriet,-AR-72639_rb/193984030_zpid/",
-                Features = new List<FeatureObject>{
-                    new FeatureObject() {FeatureID = 1, Description = "Desc1", Name = "Name1", IsEditable = true, Weight = 5 },
-                    new FeatureObject() {FeatureID = 2, Description = "Desc2", Name = "Name2", IsEditable = true, Weight = 2 }} }
+                new MarkerModel(){HouseID = 24, Latitude =36.000990, Longitude =-92.757490, IsActive = true, Notes = "Notes" },
+                new MarkerModel(){HouseID = 26, Latitude =36.817344, Longitude =-92.585746, IsActive = true, Notes = "Notes" },
+                new MarkerModel(){HouseID = 21, Latitude =36.297406, Longitude =-90.970228, IsActive = true, Notes = "Notes" },
             };
+            mapMarkersData = await _ibl.GetHousesWithMapMarkers();
+
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Warning in initialize house list page {Time}", DateTime.UtcNow);
+            //_logger.LogWarning(ex, "Warning in initialize map page {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
-
-
-
-
-
     }
-    public async Task OnActionDetailBeginAsync(ActionEventArgs<FeatureObject> args)
+    public async Task OnActionBeginAsync(ActionEventArgs<HouseHunting.Data.MarkerModel> args)
     {
-        FeatureObject features = args.Data;
-        bool result;
+        HouseHunting.Data.MarkerModel marker = args.Data;
         try
         {
+
             if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
             {
                 if (args.Action == "Edit")
                 {
+                    //bool isEdit = await _ibl.EditMapMarker(marker);
 
                 }
                 else if (args.Action == "Add")
                 {
 
+                    //bool isAdded = await _ibl.AddNewLocation(marker);
                 }
             }
             else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
             {
 
+                bool isDeleted = await _ibl.DeleteLocation(marker.HouseID);
             }
+
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Warning in ActionDetailBeginAsync {Time}", DateTime.UtcNow);
+            _logger.LogWarning(ex, "Warning in ActionBeginAsync {Time}", DateTime.UtcNow);
             //string stackTrace = _ibl.GenerateStackTrace(ex);
         }
-
     }
-    public async Task OnDetailBeginEditAsync(BeginEditArgs<FeatureObject> args)
+    public async Task OnActionFailureAsync(FailureEventArgs args)
     {
-        if (!args.RowData.IsEditable)
-        {
-            args.Cancel = true;
-
-            return;
-        }
-
-
+        //_logger.LogWarning("Warning in OnActionFailureAsync {Time}", DateTime.UtcNow);
     }
-    public void OnRowSelected(RowSelectEventArgs<HouseObject> Args)
+    public async Task OnBeginEditAsync(BeginEditArgs<HouseHunting.Data.MarkerModel> args)
     {
-        SelectedHouse = Args.Data;
-        RowIndex = Args.Data.HouseID;
+        //_logger.LogWarning("Warning in OnBeginEditAsync {Time}", DateTime.UtcNow);
     }
-    public void OnDetailActionFailure(FailureEventArgs args)
+    public async Task OnCellSaveAsync(CellSaveArgs<HouseHunting.Data.MarkerModel> args)
     {
-        _logger.LogWarning("Warning in OnDetailActionFailure {Time}", DateTime.UtcNow);
-        // Here you can get the error details in the args
+        //_logger.LogWarning("Warning in OnCellSaveAsync {Time}", DateTime.UtcNow);
     }
-    public void OnActionFailure(FailureEventArgs args)
+    public async Task OnActionCompleteAsync(ActionEventArgs<HouseHunting.Data.MarkerModel> args)
     {
-        _logger.LogWarning("Warning in OnDetailActionFailure {Time}", DateTime.UtcNow);
-        // Here you can get the error details in the args
+        //_logger.LogWarning("Warning in OnActionCompleteAsync {Time}", DateTime.UtcNow);
     }
+
 }

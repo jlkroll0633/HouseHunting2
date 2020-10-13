@@ -121,7 +121,8 @@
                 {
                     <div class="image">
                         <img src="@SelectedHouse.ImageUrl" />
-                        <b class="imageText">@SelectedHouse.Score.ToString()</b>
+                        <b class="imageText">@SelectedHouse.Score</b>
+                        @*<input @bind ="SelectedHouse.Score"/> @SelectedHouse.Score*@
 
                     </div>
                     <div >
@@ -158,8 +159,8 @@
                                         var feature = (editFeature as FeatureObject);
                                         int index = SelectedHouse.Features.IndexOf(feature);
                                     }
-                                    <SfDropDownList ID="Description" TValue="string" DataSource="FeaturesAll" TItem="FeatureObject"
-                                                    @bind-Value="@((editFeature as FeatureObject).Description)">
+                                    <SfDropDownList ID="Description" TValue="int" DataSource="FeaturesAll" TItem="FeatureObject"
+                                                    @bind-Value="@((editFeature as FeatureObject).FeatureID)">
 
                                         <DropDownListFieldSettings Text="Description" Value="FeatureID"></DropDownListFieldSettings>
                                     </SfDropDownList>

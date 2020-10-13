@@ -38,7 +38,8 @@ namespace HouseHunting
             services.AddSyncfusionBlazor();
             services.AddSingleton<INewHouseDAO, NewHouseDAO>();
             services.AddSingleton<IBL, BL>();
-
+            
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

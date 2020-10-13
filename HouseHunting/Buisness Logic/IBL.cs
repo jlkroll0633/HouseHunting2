@@ -12,10 +12,13 @@ namespace HouseHunting
     {
         Task<bool> AddFeatureToHouse(FeatureObject feature, FeatureObject sqlFeature, HouseObject house);
         Task<int> AddNewHouse(HouseObject house);
+        Task<bool> AddNewLocation(MarkerModel marker);
         Task<bool> DeleteFeatureFromHouse(HouseObject house, FeatureObject feature);
         Task<bool> DeleteHouse(int house);
+        Task<bool> DeleteLocation(int markderID);
         Task<bool> EditHouseDetails(HouseObject house);
         Task<bool> EditHouseFeatures(FeatureObject feature, FeatureObject sqlFeature, HouseObject house);
+        Task<bool> EditMapMarker(MarkerModel marker);
         string GenerateStackTrace(Exception ex);
        
        
