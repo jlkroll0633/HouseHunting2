@@ -63,7 +63,7 @@
 
     List<Pages.Counter.MarkerModel> mapMarkers;
     List<HouseHunting.Data.MarkerModel> mapMarkersData;
-    
+
     public class MarkerModel : HouseObject
     {
 
@@ -104,7 +104,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-
+        //throw new Exception("Jen's exception");
         try
         {
             mapMarkers = new List<MarkerModel>
